@@ -1,0 +1,16 @@
+{
+  "name": "Question Cards",
+  "short_name": "Q Cards",
+  "description": "Tap for a new interview question. Full screen, no repeats, no internet needed.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#FFF8EC",
+  "theme_color": "#2FC1E0",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
