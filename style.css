@@ -1,15 +1,15 @@
 @font-face {
-  font-family: "Fredoka";
-  src: url("fonts/fredoka.woff2") format("woff2");
-  font-weight: 400 700;
+  font-family: "Poppins";
+  src: url("fonts/poppins.woff2") format("woff2");
+  font-weight: 700;
   font-display: swap;
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2122;
 }
 @font-face {
   /* Romanian diacritics (ă, ș, ț and friends) live outside the base latin set. */
-  font-family: "Fredoka";
-  src: url("fonts/fredoka-ext.woff2") format("woff2");
-  font-weight: 400 700;
+  font-family: "Poppins";
+  src: url("fonts/poppins-ext.woff2") format("woff2");
+  font-weight: 700;
   font-display: swap;
   unicode-range: U+0100-024F, U+1E00-1EFF;
 }
@@ -49,7 +49,7 @@ body {
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: "Fredoka", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .screen {
@@ -80,7 +80,7 @@ body {
 
 .eyebrow {
   margin: 0;
-  font-family: "Fredoka", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -90,7 +90,7 @@ body {
 }
 
 .btn-start {
-  font-family: "Fredoka", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -145,7 +145,7 @@ body {
   margin: 0;
   width: 100%;
   max-width: 100%;
-  font-family: "Fredoka", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 700;
   text-transform: uppercase;
   text-align: center;
@@ -178,7 +178,7 @@ body {
   top: max(1.25rem, env(safe-area-inset-top));
   right: max(1.25rem, env(safe-area-inset-right));
   z-index: 2;
-  font-family: "Fredoka", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -204,7 +204,7 @@ body {
   bottom: max(1.5rem, env(safe-area-inset-bottom));
   margin: 0;
   text-align: center;
-  font-family: "Fredoka", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;

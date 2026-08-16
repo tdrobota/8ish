@@ -1,6 +1,6 @@
 // Cache-first offline shell (CAP-6). Bump CACHE_NAME on any asset change
 // so returning devices pick up the new version instead of a stale cache.
-const CACHE_NAME = "qcards-v3";
+const CACHE_NAME = "qcards-v4";
 
 const PRECACHE_URLS = [
   "./",
@@ -9,8 +9,8 @@ const PRECACHE_URLS = [
   "./app.js",
   "./questions.js",
   "./manifest.webmanifest",
-  "./fonts/fredoka.woff2",
-  "./fonts/fredoka-ext.woff2",
+  "./fonts/poppins.woff2",
+  "./fonts/poppins-ext.woff2",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-512-maskable.png",
