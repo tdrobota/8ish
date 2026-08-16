@@ -1,7 +1,8 @@
 {
-  "name": "Question Cards",
-  "short_name": "Q Cards",
-  "description": "Tap for a new interview question. Full screen, no repeats, no internet needed.",
+  "name": "Cartonașe cu Întrebări",
+  "short_name": "Întrebări",
+  "description": "Atinge pentru o întrebare nouă de interviu. Ecran complet, fără repetări, fără nevoie de internet.",
+  "lang": "ro",
   "start_url": "./index.html",
   "scope": "./",
   "display": "fullscreen",

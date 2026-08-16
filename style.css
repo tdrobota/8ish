@@ -3,12 +3,29 @@
   src: url("fonts/baloo2.woff2") format("woff2");
   font-weight: 700 800;
   font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2122;
+}
+@font-face {
+  /* Romanian diacritics (ă, ș, ț and friends) live outside the base latin set. */
+  font-family: "Baloo 2";
+  src: url("fonts/baloo2-ext.woff2") format("woff2");
+  font-weight: 700 800;
+  font-display: swap;
+  unicode-range: U+0100-024F, U+1E00-1EFF;
 }
 @font-face {
   font-family: "Nunito";
   src: url("fonts/nunito.woff2") format("woff2");
   font-weight: 500 800;
   font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2122;
+}
+@font-face {
+  font-family: "Nunito";
+  src: url("fonts/nunito-ext.woff2") format("woff2");
+  font-weight: 500 800;
+  font-display: swap;
+  unicode-range: U+0100-024F, U+1E00-1EFF;
 }
 
 :root {

@@ -1,40 +1,42 @@
 <!doctype html>
-<html lang="en">
+<html lang="ro">
 <head>
   <meta charset="utf-8" />
-  <title>Question Cards</title>
+  <title>Cartonașe cu Întrebări</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 
   <!-- Installable, offline PWA on iPad Safari (CAP-6) -->
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Q Cards" />
+  <meta name="apple-mobile-web-app-title" content="Întrebări" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#2FC1E0" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" href="icons/icon-192.png" />
 
   <link rel="preload" href="fonts/baloo2.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/baloo2-ext.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/nunito.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/nunito-ext.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <!-- Start screen -->
   <main id="start" class="screen start-screen">
-    <p class="eyebrow">Question Cards</p>
-    <button id="startBtn" class="btn-start" type="button">Start</button>
-    <p class="hint">Tap the screen for a new question. Tap End when the interview is done.</p>
+    <p class="eyebrow">Cartonașe cu întrebări</p>
+    <button id="startBtn" class="btn-start" type="button">Începe</button>
+    <p class="hint">Atinge ecranul pentru o întrebare nouă. Atinge Gata când ai terminat interviul.</p>
   </main>
 
   <!-- Question stage -->
   <div id="stage" class="screen stage-screen" hidden>
-    <button id="endBtn" class="btn-end" type="button" aria-label="End session">End</button>
-    <button id="tapLayer" class="tap-layer" type="button" aria-label="Show next question">
+    <button id="endBtn" class="btn-end" type="button" aria-label="Încheie sesiunea">Gata</button>
+    <button id="tapLayer" class="tap-layer" type="button" aria-label="Arată următoarea întrebare">
       <p id="questionText" class="question" aria-live="polite"></p>
     </button>
-    <p id="tapHint" class="tap-hint" aria-hidden="true">Tap for next</p>
+    <p id="tapHint" class="tap-hint" aria-hidden="true">Atinge pentru următoarea</p>
   </div>
 
   <script src="questions.js"></script>
