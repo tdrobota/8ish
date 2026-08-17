@@ -25,6 +25,7 @@
   let cardIndex = 0;
   let firstTapPending = false;
   let timerInterval = null;
+  let pendingSeconds = 0; // duration of the current card's timer, until the kid starts it
 
   function currentBank() {
     return mode === "challenges" ? CHALLENGES : QUESTIONS;
@@ -48,18 +49,34 @@
     return pool.pop();
   }
 
-  function stopTimer() {
+  function resetRingVisual() {
     if (timerInterval) {
       clearInterval(timerInterval);
       timerInterval = null;
     }
     timerRingFg.style.transition = "none";
     timerRingFg.style.strokeDashoffset = "0";
-    timerNumber.classList.remove("timer-done");
+    timerRing.classList.remove("timer-idle");
+    timerNumber.classList.remove("timer-label", "timer-done");
+    pendingSeconds = 0;
   }
 
-  function startTimer(seconds) {
-    timerNumber.classList.remove("timer-done");
+  // Shows the ring full, labeled "START" — the kid taps it to begin the countdown.
+  function setTimerIdle(seconds) {
+    resetRingVisual();
+    pendingSeconds = seconds;
+    timerRing.classList.add("timer-idle");
+    timerNumber.classList.add("timer-label");
+    timerNumber.textContent = "START";
+  }
+
+  function startTimer() {
+    if (!pendingSeconds || timerInterval) return;
+    const seconds = pendingSeconds;
+    pendingSeconds = 0;
+
+    timerRing.classList.remove("timer-idle");
+    timerNumber.classList.remove("timer-label");
     timerNumber.textContent = String(seconds);
     timerRingFg.style.transition = "none";
     timerRingFg.style.strokeDashoffset = "0";
@@ -75,7 +92,7 @@
         clearInterval(timerInterval);
         timerInterval = null;
         timerNumber.textContent = "GATA!";
-        timerNumber.classList.add("timer-done");
+        timerNumber.classList.add("timer-label", "timer-done");
       } else {
         timerNumber.textContent = String(remaining);
       }
@@ -113,7 +130,7 @@
   }
 
   function showNextQuestion() {
-    stopTimer();
+    resetRingVisual();
 
     const bank = currentBank();
     const idx = drawNextIndex();
@@ -129,7 +146,7 @@
 
     if (seconds > 0) {
       timerRing.hidden = false;
-      startTimer(seconds);
+      setTimerIdle(seconds);
     } else {
       timerRing.hidden = true;
     }
@@ -156,7 +173,7 @@
   }
 
   function endSession() {
-    stopTimer();
+    resetRingVisual();
     pool = [];
     questionText.textContent = "";
     timerRing.hidden = true;
@@ -164,11 +181,15 @@
     startScreen.hidden = false;
   }
 
-  function handleTap() {
+  function dismissHint() {
     if (firstTapPending) {
       firstTapPending = false;
       tapHint.classList.add("hidden");
     }
+  }
+
+  function handleTap() {
+    dismissHint();
     showNextQuestion();
   }
 
@@ -176,6 +197,18 @@
   startChallengesBtn.addEventListener("click", () => startSession("challenges"));
   endBtn.addEventListener("click", endSession);
   tapLayer.addEventListener("click", handleTap);
+  tapLayer.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleTap();
+    }
+  });
+
+  timerRing.addEventListener("click", (event) => {
+    event.stopPropagation();
+    dismissHint();
+    startTimer();
+  });
 
   let resizeTimer = null;
   window.addEventListener("resize", () => {

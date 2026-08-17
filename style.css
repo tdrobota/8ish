@@ -184,10 +184,21 @@ body {
 }
 
 .timer-ring {
+  appearance: none;
   position: relative;
   flex: none;
   width: clamp(72px, 16vw, 140px);
   height: clamp(72px, 16vw, 140px);
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 90ms ease;
+}
+
+.timer-ring:active {
+  transform: scale(0.92);
 }
 
 .timer-ring[hidden] {
@@ -198,6 +209,21 @@ body {
   width: 100%;
   height: 100%;
   transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .timer-ring.timer-idle .timer-ring-fg {
+    animation: idle-pulse 1.6s ease-in-out infinite;
+  }
+}
+@keyframes idle-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .timer-ring-bg,
@@ -229,7 +255,7 @@ body {
   color: var(--ink);
 }
 
-.timer-number.timer-done {
+.timer-number.timer-label {
   font-size: clamp(0.9rem, 3vw, 1.4rem);
 }
 
@@ -237,6 +263,12 @@ body {
   .timer-number.timer-done {
     animation: pop 200ms ease-out;
   }
+}
+
+.tap-layer:focus-visible,
+.timer-ring:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: no-preference) {

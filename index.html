@@ -34,18 +34,18 @@
   <!-- Question / challenge stage -->
   <div id="stage" class="screen stage-screen" hidden>
     <button id="endBtn" class="btn-end" type="button" aria-label="Încheie sesiunea">Gata</button>
-    <button id="tapLayer" class="tap-layer" type="button" aria-label="Arată următoarea">
+    <div id="tapLayer" class="tap-layer" role="button" tabindex="0" aria-label="Arată următoarea">
       <div id="cardContent" class="card-content">
-        <div id="timerRing" class="timer-ring" hidden aria-hidden="true">
+        <button id="timerRing" class="timer-ring" type="button" hidden aria-label="Pornește cronometrul">
           <svg viewBox="0 0 100 100">
             <circle class="timer-ring-bg" cx="50" cy="50" r="44" />
             <circle id="timerRingFg" class="timer-ring-fg" cx="50" cy="50" r="44" />
           </svg>
           <span id="timerNumber" class="timer-number"></span>
-        </div>
+        </button>
         <p id="questionText" class="question" aria-live="polite"></p>
       </div>
-    </button>
+    </div>
     <p id="tapHint" class="tap-hint" aria-hidden="true">Atinge pentru următoarea</p>
   </div>
 
