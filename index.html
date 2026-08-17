@@ -24,20 +24,33 @@
   <!-- Start screen -->
   <main id="start" class="screen start-screen">
     <p class="eyebrow">Cartonașe cu întrebări</p>
-    <button id="startBtn" class="btn-start" type="button">Începe</button>
-    <p class="hint">Atinge ecranul pentru o întrebare nouă. Atinge Gata când ai terminat interviul.</p>
+    <div class="mode-buttons">
+      <button id="startQuestionsBtn" class="btn-start btn-mode" type="button">Întrebări</button>
+      <button id="startChallengesBtn" class="btn-start btn-mode btn-mode-alt" type="button">Provocări</button>
+    </div>
+    <p class="hint">Atinge ecranul pentru următoarea. Atinge Gata când termini.</p>
   </main>
 
-  <!-- Question stage -->
+  <!-- Question / challenge stage -->
   <div id="stage" class="screen stage-screen" hidden>
     <button id="endBtn" class="btn-end" type="button" aria-label="Încheie sesiunea">Gata</button>
-    <button id="tapLayer" class="tap-layer" type="button" aria-label="Arată următoarea întrebare">
-      <p id="questionText" class="question" aria-live="polite"></p>
+    <button id="tapLayer" class="tap-layer" type="button" aria-label="Arată următoarea">
+      <div id="cardContent" class="card-content">
+        <div id="timerRing" class="timer-ring" hidden aria-hidden="true">
+          <svg viewBox="0 0 100 100">
+            <circle class="timer-ring-bg" cx="50" cy="50" r="44" />
+            <circle id="timerRingFg" class="timer-ring-fg" cx="50" cy="50" r="44" />
+          </svg>
+          <span id="timerNumber" class="timer-number"></span>
+        </div>
+        <p id="questionText" class="question" aria-live="polite"></p>
+      </div>
     </button>
     <p id="tapHint" class="tap-hint" aria-hidden="true">Atinge pentru următoarea</p>
   </div>
 
   <script src="questions.js"></script>
+  <script src="challenges.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
