@@ -3,7 +3,7 @@
   "short_name": "Întrebări",
   "description": "Atinge pentru o întrebare nouă de interviu. Ecran complet, fără repetări, fără nevoie de internet.",
   "lang": "ro",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
   "orientation": "any",
