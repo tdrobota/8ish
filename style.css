@@ -332,3 +332,216 @@ body {
 .tap-hint.hidden {
   opacity: 0;
 }
+
+/* ---------- Icon sprite (Jocuri pictograms) ---------- */
+
+.icon-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.icon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.btn-mode-games {
+  background: var(--card-3);
+}
+
+/* ---------- Games list & detail screens ---------- */
+
+.games-screen,
+.game-detail-screen {
+  background: var(--paper);
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.btn-back {
+  left: max(1.25rem, env(safe-area-inset-left));
+  right: auto;
+}
+
+.games-scroll {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: calc(max(1.25rem, env(safe-area-inset-top)) + 4rem) max(1.5rem, env(safe-area-inset-right))
+    max(2rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
+  box-sizing: border-box;
+}
+
+.games-title {
+  margin: 0 0 1.25rem;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  color: var(--ink);
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1.1rem;
+  max-width: 60rem;
+  margin: 0 auto;
+}
+
+.game-card {
+  appearance: none;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  border: 4px solid var(--ink);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-ink);
+  padding: 1.1rem 0.75rem;
+  cursor: pointer;
+  color: var(--ink);
+  transition: transform 90ms ease, box-shadow 90ms ease;
+}
+
+.game-card:active {
+  transform: translate(4px, 4px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.game-card-icon {
+  flex: none;
+  width: clamp(52px, 12vw, 68px);
+  height: clamp(52px, 12vw, 68px);
+  border-radius: 50%;
+  background: var(--paper-chip);
+  border: 3px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-card-icon .icon {
+  width: 62%;
+  height: 62%;
+}
+
+.game-card-name {
+  margin: 0;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.15;
+  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
+}
+
+/* ---------- Game detail ---------- */
+
+.game-detail-badge {
+  width: clamp(84px, 20vw, 120px);
+  height: clamp(84px, 20vw, 120px);
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  border: 4px solid var(--ink);
+  box-shadow: var(--shadow-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-detail-badge .icon {
+  width: 60%;
+  height: 60%;
+}
+
+.game-detail-name {
+  margin: 0 0 0.35rem;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  color: var(--ink);
+}
+
+.game-detail-players {
+  margin: 0 auto 1rem;
+  max-width: 32ch;
+  text-align: center;
+  font-weight: 700;
+  font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+  color: var(--ink);
+  opacity: 0.65;
+}
+
+.game-detail-description {
+  margin: 0 auto 1.75rem;
+  max-width: 46ch;
+  text-align: center;
+  font-weight: 700;
+  font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.steps-title {
+  margin: 0 auto 1rem;
+  max-width: 46rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: clamp(1rem, 2.4vw, 1.2rem);
+  opacity: 0.7;
+}
+
+.steps-list {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 46rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.step-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--paper-chip);
+  border: 3px solid var(--ink);
+  border-radius: 1.1rem;
+  padding: 0.7rem 1rem;
+}
+
+.step-icon {
+  flex: none;
+  width: clamp(44px, 10vw, 56px);
+  height: clamp(44px, 10vw, 56px);
+  border-radius: 50%;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon .icon {
+  width: 65%;
+  height: 65%;
+}
+
+.step-text {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.35;
+  font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+}

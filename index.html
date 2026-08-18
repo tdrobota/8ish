@@ -21,15 +21,260 @@
 </head>
 <body>
 
+  <!-- Reusable pictogram sprite for the Jocuri (games) feature. Hidden; referenced via <use>. -->
+  <svg class="icon-sprite" aria-hidden="true" focusable="false">
+    <defs>
+      <!-- base figures, composed into the icon- symbols below -->
+      <symbol id="fig-stand" viewBox="0 0 64 64">
+        <circle cx="32" cy="15" r="7" />
+        <line x1="32" y1="22" x2="32" y2="42" />
+        <line x1="32" y1="27" x2="18" y2="34" />
+        <line x1="32" y1="27" x2="46" y2="34" />
+        <line x1="32" y1="42" x2="20" y2="58" />
+        <line x1="32" y1="42" x2="44" y2="58" />
+      </symbol>
+      <symbol id="fig-run" viewBox="0 0 64 64">
+        <circle cx="30" cy="14" r="7" />
+        <line x1="30" y1="21" x2="34" y2="38" />
+        <line x1="32" y1="24" x2="46" y2="14" />
+        <line x1="32" y1="28" x2="14" y2="32" />
+        <line x1="34" y1="38" x2="48" y2="34" />
+        <line x1="34" y1="38" x2="20" y2="58" />
+      </symbol>
+      <symbol id="fig-sit" viewBox="0 0 64 64">
+        <circle cx="30" cy="16" r="7" />
+        <line x1="30" y1="23" x2="32" y2="38" />
+        <line x1="30" y1="27" x2="18" y2="30" />
+        <line x1="30" y1="27" x2="42" y2="30" />
+        <line x1="32" y1="38" x2="48" y2="38" />
+        <line x1="48" y1="38" x2="48" y2="54" />
+        <line x1="32" y1="38" x2="24" y2="54" />
+      </symbol>
+      <symbol id="fig-crouch" viewBox="0 0 64 64">
+        <circle cx="32" cy="30" r="7" />
+        <line x1="32" y1="37" x2="32" y2="48" />
+        <line x1="32" y1="40" x2="20" y2="44" />
+        <line x1="32" y1="40" x2="44" y2="44" />
+        <line x1="32" y1="48" x2="22" y2="58" />
+        <line x1="32" y1="48" x2="42" y2="58" />
+      </symbol>
+
+      <symbol id="icon-tag-touch" viewBox="0 0 64 64">
+        <use href="#fig-run" />
+        <line x1="46" y1="8" x2="54" y2="8" />
+        <line x1="50" y1="4" x2="50" y2="12" />
+      </symbol>
+      <symbol id="icon-point" viewBox="0 0 64 64">
+        <use href="#fig-stand" />
+        <line x1="32" y1="0" x2="32" y2="6" />
+        <line x1="32" y1="6" x2="28" y2="2" />
+        <line x1="32" y1="6" x2="36" y2="2" />
+      </symbol>
+      <symbol id="icon-run" viewBox="0 0 64 64">
+        <use href="#fig-run" />
+      </symbol>
+      <symbol id="icon-hide" viewBox="0 0 64 64">
+        <use href="#fig-crouch" />
+        <g fill="var(--paper-chip)" stroke="currentColor">
+          <circle cx="18" cy="52" r="10" />
+          <circle cx="32" cy="48" r="12" />
+          <circle cx="46" cy="52" r="10" />
+        </g>
+      </symbol>
+      <symbol id="icon-count" viewBox="0 0 64 64">
+        <use href="#fig-stand" />
+        <text x="32" y="9" font-size="11" font-weight="700" text-anchor="middle" stroke="none" fill="currentColor">123</text>
+      </symbol>
+      <symbol id="icon-seek" viewBox="0 0 64 64">
+        <circle cx="26" cy="26" r="14" />
+        <line x1="36" y1="36" x2="52" y2="52" />
+      </symbol>
+      <symbol id="icon-grid" viewBox="0 0 64 64">
+        <rect x="22" y="42" width="20" height="18" />
+        <rect x="12" y="22" width="20" height="18" />
+        <rect x="32" y="22" width="20" height="18" />
+        <rect x="22" y="4" width="20" height="16" />
+        <circle cx="32" cy="51" r="4" fill="currentColor" stroke="none" />
+      </symbol>
+      <symbol id="icon-throw" viewBox="0 0 64 64">
+        <use href="#fig-stand" />
+        <circle cx="48" cy="30" r="5" fill="currentColor" stroke="none" />
+        <line x1="54" y1="24" x2="60" y2="20" />
+        <line x1="56" y1="32" x2="62" y2="30" />
+      </symbol>
+      <symbol id="icon-hop" viewBox="0 0 64 64">
+        <circle cx="32" cy="14" r="7" />
+        <line x1="32" y1="21" x2="32" y2="40" />
+        <line x1="32" y1="25" x2="20" y2="20" />
+        <line x1="32" y1="25" x2="44" y2="30" />
+        <line x1="32" y1="40" x2="30" y2="58" />
+        <line x1="32" y1="40" x2="44" y2="44" />
+        <line x1="44" y1="44" x2="42" y2="52" />
+      </symbol>
+      <symbol id="icon-turn" viewBox="0 0 64 64">
+        <path d="M46 46 V28 Q46 14 32 14 Q20 14 18 24" fill="none" />
+        <line x1="18" y1="24" x2="12" y2="18" />
+        <line x1="18" y1="24" x2="26" y2="20" />
+      </symbol>
+      <symbol id="icon-blindfold" viewBox="0 0 64 64">
+        <circle cx="32" cy="30" r="16" />
+        <rect x="14" y="26" width="36" height="9" rx="2" fill="currentColor" stroke="none" />
+        <line x1="14" y1="30" x2="6" y2="24" />
+        <line x1="50" y1="30" x2="58" y2="24" />
+      </symbol>
+      <symbol id="icon-spin" viewBox="0 0 64 64">
+        <use href="#fig-stand" transform="translate(8,6) scale(0.72)" />
+        <path d="M50 20 A22 22 0 1 1 42 8" fill="none" />
+        <line x1="42" y1="8" x2="34" y2="10" />
+        <line x1="42" y1="8" x2="44" y2="16" />
+      </symbol>
+      <symbol id="icon-reach" viewBox="0 0 64 64">
+        <use href="#fig-stand" />
+        <line x1="32" y1="27" x2="58" y2="22" />
+        <circle cx="58" cy="22" r="4" fill="currentColor" stroke="none" />
+      </symbol>
+      <symbol id="icon-freeze" viewBox="0 0 64 64">
+        <circle cx="32" cy="14" r="7" />
+        <line x1="32" y1="21" x2="32" y2="46" />
+        <line x1="32" y1="26" x2="10" y2="26" />
+        <line x1="32" y1="26" x2="54" y2="26" />
+        <line x1="32" y1="46" x2="20" y2="60" />
+        <line x1="32" y1="46" x2="44" y2="60" />
+        <g stroke-width="3">
+          <line x1="32" y1="0" x2="32" y2="6" />
+          <line x1="26" y1="3" x2="38" y2="3" />
+        </g>
+      </symbol>
+      <symbol id="icon-wall" viewBox="0 0 64 64">
+        <rect x="14" y="8" width="36" height="48" />
+        <line x1="14" y1="24" x2="50" y2="24" />
+        <line x1="14" y1="40" x2="50" y2="40" />
+        <line x1="32" y1="8" x2="32" y2="24" />
+        <line x1="20" y1="24" x2="20" y2="40" />
+        <line x1="44" y1="24" x2="44" y2="40" />
+      </symbol>
+      <symbol id="icon-swap" viewBox="0 0 64 64">
+        <path d="M14 24 H44 M44 24 L36 16 M44 24 L36 32" fill="none" />
+        <path d="M50 40 H20 M20 40 L28 32 M20 40 L28 48" fill="none" />
+      </symbol>
+      <symbol id="icon-out" viewBox="0 0 64 64">
+        <use href="#fig-sit" />
+        <line x1="50" y1="10" x2="58" y2="18" />
+        <line x1="58" y1="10" x2="50" y2="18" />
+      </symbol>
+      <symbol id="icon-group-circle" viewBox="0 0 64 64">
+        <use href="#fig-stand" transform="translate(20,-2) scale(0.5)" />
+        <use href="#fig-stand" transform="translate(-6,26) scale(0.5)" />
+        <use href="#fig-stand" transform="translate(46,26) scale(0.5)" />
+        <circle cx="32" cy="34" r="22" stroke-dasharray="4 5" fill="none" />
+      </symbol>
+      <symbol id="icon-standing" viewBox="0 0 64 64">
+        <use href="#fig-stand" />
+      </symbol>
+      <symbol id="icon-dodge" viewBox="0 0 64 64">
+        <use href="#fig-stand" transform="rotate(-15 32 34)" />
+        <circle cx="54" cy="14" r="5" fill="currentColor" stroke="none" />
+        <line x1="60" y1="10" x2="66" y2="8" />
+      </symbol>
+      <symbol id="icon-chair" viewBox="0 0 64 64">
+        <rect x="16" y="30" width="32" height="8" />
+        <line x1="16" y1="38" x2="16" y2="58" />
+        <line x1="48" y1="38" x2="48" y2="58" />
+        <line x1="16" y1="30" x2="16" y2="8" />
+        <line x1="16" y1="8" x2="44" y2="8" />
+      </symbol>
+      <symbol id="icon-music" viewBox="0 0 64 64">
+        <circle cx="24" cy="46" r="8" fill="currentColor" stroke="none" />
+        <line x1="32" y1="46" x2="32" y2="12" />
+        <path d="M32 12 Q46 14 44 26" fill="none" />
+      </symbol>
+      <symbol id="icon-whisper" viewBox="0 0 64 64">
+        <circle cx="26" cy="24" r="14" />
+        <circle cx="40" cy="34" r="5" fill="currentColor" stroke="none" />
+        <path d="M46 30 Q54 34 46 42" fill="none" />
+      </symbol>
+      <symbol id="icon-chain-line" viewBox="0 0 64 64">
+        <use href="#fig-stand" transform="translate(2,10) scale(0.42)" />
+        <use href="#fig-stand" transform="translate(24,10) scale(0.42)" />
+        <use href="#fig-stand" transform="translate(46,10) scale(0.42)" />
+      </symbol>
+      <symbol id="icon-ear" viewBox="0 0 64 64">
+        <path d="M26 50 Q10 40 14 22 Q18 6 34 8 Q50 10 48 26 Q47 36 36 38 Q30 39 30 46 Q30 52 26 50 Z" fill="none" />
+        <line x1="46" y1="14" x2="54" y2="10" />
+        <line x1="48" y1="22" x2="57" y2="20" />
+      </symbol>
+      <symbol id="icon-laugh" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="22" />
+        <circle cx="24" cy="26" r="2.5" fill="currentColor" stroke="none" />
+        <circle cx="40" cy="26" r="2.5" fill="currentColor" stroke="none" />
+        <path d="M18 38 Q32 52 46 38" fill="none" />
+      </symbol>
+      <symbol id="icon-baton-pass" viewBox="0 0 64 64">
+        <rect x="16" y="28" width="32" height="8" rx="4" />
+        <circle cx="12" cy="32" r="6" fill="currentColor" stroke="none" />
+        <circle cx="52" cy="32" r="6" fill="currentColor" stroke="none" />
+      </symbol>
+      <symbol id="icon-hidden-object" viewBox="0 0 64 64">
+        <path
+          d="M32 10 L36 24 L50 24 L39 33 L43 47 L32 38 L21 47 L25 33 L14 24 L28 24 Z"
+          fill="currentColor"
+          stroke="none"
+        />
+        <g fill="var(--paper-chip)" stroke="currentColor">
+          <circle cx="18" cy="46" r="12" />
+          <circle cx="46" cy="46" r="12" />
+        </g>
+      </symbol>
+      <symbol id="icon-hot" viewBox="0 0 64 64">
+        <path
+          d="M32 6 C44 20 46 32 38 40 C40 32 34 30 32 36 C30 30 26 32 26 38 C20 32 20 20 32 6 Z"
+          fill="currentColor"
+          stroke="none"
+        />
+      </symbol>
+      <symbol id="icon-cold" viewBox="0 0 64 64">
+        <g stroke-width="5">
+          <line x1="32" y1="10" x2="32" y2="54" />
+          <line x1="10" y1="32" x2="54" y2="32" />
+          <line x1="16" y1="16" x2="48" y2="48" />
+          <line x1="48" y1="16" x2="16" y2="48" />
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
   <!-- Start screen -->
   <main id="start" class="screen start-screen">
     <p class="eyebrow">Cartonașe cu întrebări</p>
     <div class="mode-buttons">
       <button id="startQuestionsBtn" class="btn-start btn-mode" type="button">Întrebări</button>
       <button id="startChallengesBtn" class="btn-start btn-mode btn-mode-alt" type="button">Provocări</button>
+      <button id="startGamesBtn" class="btn-start btn-mode btn-mode-games" type="button">Jocuri</button>
     </div>
     <p class="hint">Atinge ecranul pentru următoarea. Atinge Gata când termini.</p>
   </main>
+
+  <!-- Games list screen -->
+  <div id="gamesList" class="screen games-screen" hidden>
+    <button id="gamesBackBtn" class="btn-end btn-back" type="button">‹ Înapoi</button>
+    <div class="games-scroll">
+      <p class="games-title">Alege un joc</p>
+      <div id="gameGrid" class="game-grid"></div>
+    </div>
+  </div>
+
+  <!-- Game detail screen -->
+  <div id="gameDetail" class="screen game-detail-screen" hidden>
+    <button id="gameDetailBackBtn" class="btn-end btn-back" type="button">‹ Jocuri</button>
+    <div class="games-scroll">
+      <div id="gameDetailBadge" class="game-detail-badge"></div>
+      <p id="gameDetailName" class="game-detail-name"></p>
+      <p id="gameDetailPlayers" class="game-detail-players"></p>
+      <p id="gameDetailDescription" class="game-detail-description"></p>
+      <p class="steps-title">Cum se joacă</p>
+      <ol id="gameDetailSteps" class="steps-list"></ol>
+    </div>
+  </div>
 
   <!-- Question / challenge stage -->
   <div id="stage" class="screen stage-screen" hidden>
@@ -51,6 +296,7 @@
 
   <script src="questions.js"></script>
   <script src="challenges.js"></script>
+  <script src="games.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
