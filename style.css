@@ -767,5 +767,7 @@ body {
 .draw-result-actions {
   flex: none;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  gap: 1rem;
 }

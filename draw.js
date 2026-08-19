@@ -27,6 +27,7 @@
   const drawPromptText = document.getElementById("drawPromptText");
   const drawPromptBackBtn = document.getElementById("drawPromptBackBtn");
   const drawStartBtn = document.getElementById("drawStartBtn");
+  const drawPromptRerollBtn = document.getElementById("drawPromptRerollBtn");
 
   const drawEndBtn = document.getElementById("drawEndBtn");
   const drawClearBtn = document.getElementById("drawClearBtn");
@@ -46,6 +47,7 @@
   const drawToggleBtn = document.getElementById("drawToggleBtn");
   const drawToggleThumb = document.getElementById("drawToggleThumb");
   const drawNewBtn = document.getElementById("drawNewBtn");
+  const drawSaveBtn = document.getElementById("drawSaveBtn");
   const drawErrorMessage = document.getElementById("drawErrorMessage");
   const drawRetryBtn = document.getElementById("drawRetryBtn");
 
@@ -280,6 +282,31 @@
     drawRetryBtn.disabled = false;
   }
 
+  // CAP-8: save via the native share sheet (Web Share API with a file),
+  // not an <a download> link — iOS Safari doesn't reliably turn a download
+  // link into "Save Image" the way the share sheet does. Saves whatever is
+  // currently shown (rendered art or, if toggled, the original sketch).
+  async function saveCurrentImage() {
+    const dataUrl = drawResultMainImg.src;
+    if (!dataUrl) return;
+    try {
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], "opera-mea.png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file] });
+      } else {
+        // Fallback for browsers without the file-share API: open the image
+        // full-screen so it can at least be long-press-saved manually.
+        window.open(dataUrl, "_blank");
+      }
+    } catch (e) {
+      // AbortError from a cancelled share sheet is expected/silent; anything
+      // else is logged but never surfaced as an error screen — saving is a
+      // side action, its failure shouldn't disrupt the result the kid already has.
+      if (e.name !== "AbortError") console.error("QCDraw: save failed", e);
+    }
+  }
+
   function finishFailure(kind) {
     drawErrorMessage.textContent = RESULT_MESSAGES[kind] || RESULT_MESSAGES.provider_error;
     showResultSubState("error");
@@ -360,6 +387,14 @@
     QCUI.showScreen("drawPrompt");
   }
 
+  // Kid doesn't like/understand the current challenge: swap it for another
+  // one without leaving the prompt screen. Draws from the same pool as
+  // nextPrompt (no repeats until the 200-prompt bank is exhausted).
+  function rerollPrompt() {
+    currentPrompt = nextPrompt();
+    drawPromptText.textContent = currentPrompt.text;
+  }
+
   function enterDrawCanvas() {
     started = false;
     locked = false;
@@ -398,6 +433,7 @@
   startDrawBtn.addEventListener("click", enterDrawPrompt);
   drawPromptBackBtn.addEventListener("click", () => QCUI.showScreen("start"));
   drawStartBtn.addEventListener("click", enterDrawCanvas);
+  drawPromptRerollBtn.addEventListener("click", rerollPrompt);
   drawEndBtn.addEventListener("click", exitToStart);
   drawResultEndBtn.addEventListener("click", exitToStart);
 
@@ -413,6 +449,7 @@
   });
 
   drawNewBtn.addEventListener("click", enterDrawPrompt);
+  drawSaveBtn.addEventListener("click", saveCurrentImage);
 
   drawClearBtn.addEventListener("click", () => {
     if (started || locked) return; // clear is only active before the countdown starts
