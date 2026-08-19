@@ -724,11 +724,11 @@ body {
   display: block;
   width: 100%;
   height: 100%;
-  /* cover, not contain: the model doesn't always return a square image, and
-     contain left inconsistent letterboxing depending on what it returned.
-     Every result now fills this same fixed square frame, cropping any
-     excess rather than leaving unused space. */
-  object-fit: cover;
+  /* contain, not cover: cover filled the frame but cropped into the actual
+     artwork whenever the model's result wasn't square. draw.js now resizes
+     #drawArtWrap to match the loaded image's real aspect ratio, so contain
+     fills it exactly with no crop and no letterboxing. */
+  object-fit: contain;
   background: #fff;
   border: 4px solid var(--ink);
   border-radius: 1.5rem;

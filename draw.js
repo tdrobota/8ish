@@ -43,6 +43,7 @@
   const drawWaiting = document.getElementById("drawWaiting");
   const drawSuccess = document.getElementById("drawSuccess");
   const drawError = document.getElementById("drawError");
+  const drawArtWrap = document.getElementById("drawArtWrap");
   const drawResultMainImg = document.getElementById("drawResultMainImg");
   const drawToggleBtn = document.getElementById("drawToggleBtn");
   const drawToggleThumb = document.getElementById("drawToggleThumb");
@@ -272,6 +273,20 @@
       drawToggleBtn.setAttribute("aria-label", "Arată desenul original");
     }
   }
+
+  // The AI model doesn't reliably return a square image (unlike the sketch,
+  // which is always square — see captureDownscaled). A fixed square frame
+  // meant either cropping it (object-fit: cover) or leaving unused space
+  // around it (contain). Instead, size the frame to whichever image is
+  // currently shown once its real dimensions are known, so "contain" always
+  // fills it exactly — no crop, no dead space. Ratio is clamped so a wildly
+  // non-square result can't blow up the layout; contain still shows the
+  // whole image in that rare case, just with a little letterboxing.
+  drawResultMainImg.addEventListener("load", () => {
+    const { naturalWidth: w, naturalHeight: h } = drawResultMainImg;
+    if (!w || !h) return;
+    drawArtWrap.style.aspectRatio = String(Math.min(2, Math.max(0.5, w / h)));
+  });
 
   function finishSuccess(base64Image) {
     renderedImageDataUrl = "data:image/png;base64," + base64Image;
