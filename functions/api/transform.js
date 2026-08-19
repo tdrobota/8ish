@@ -18,6 +18,21 @@ const TIMEOUT_MS = 30000;
 // so the global cooldown is what bounds billed AI calls per hour.
 const APP_TOKEN = "f73dc90199f1fa117ffc96c2ed278fc6";
 
+// The client sends the kid-facing Challenge Prompt text as-is (e.g.
+// "Desenează un monstru care mănâncă doar broccoli!") — that's an
+// instruction for a child, not a style directive for an image model, so
+// forwarding it verbatim produced flat/illustrative results. Wrap it in a
+// realism directive here so "REAL LIFE" is the model's actual target,
+// while keeping the kid-facing prompt bank (prompts.js) untouched.
+function buildTransformPrompt(challengeText) {
+  return (
+    "Transform this child's line-drawing sketch into a vivid, photorealistic image — as if it were a real photograph, not a cartoon, illustration, or drawing. " +
+    "Keep the same subject, pose, and composition as the sketch. Scene: " +
+    challengeText +
+    ". Natural lighting, rich color, fine realistic detail."
+  );
+}
+
 // Single global Cooldown (AD-5): one fixed KV key, no per-session/per-IP
 // keying, matching this single-client hobby app's scale. 6 minutes caps
 // billed Workers AI calls at exactly 10/hour system-wide, regardless of
@@ -128,7 +143,7 @@ export async function onRequestPost(context) {
 
     const imageBlob = base64ToBlob(image, "image/png");
     const form = new FormData();
-    form.append("prompt", prompt);
+    form.append("prompt", buildTransformPrompt(prompt));
     form.append("input_image_0", imageBlob);
 
     // Cloudflare's documented trick for turning a FormData into the raw
