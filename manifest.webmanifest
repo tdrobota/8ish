@@ -1,14 +1,14 @@
 {
-  "name": "Cartonașe cu Întrebări",
-  "short_name": "Întrebări",
-  "description": "Atinge pentru o întrebare nouă de interviu. Ecran complet, fără repetări, fără nevoie de internet.",
+  "name": "8ish",
+  "short_name": "8ish",
+  "description": "Întrebări, provocări, jocuri și desen — distracție pentru copii, ecran complet, fără nevoie de internet.",
   "lang": "ro",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
   "orientation": "any",
   "background_color": "#FFF8EC",
-  "theme_color": "#2FC1E0",
+  "theme_color": "#C6F24A",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
