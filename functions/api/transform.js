@@ -20,84 +20,249 @@ const APP_TOKEN = "f73dc90199f1fa117ffc96c2ed278fc6";
 
 // The client sends the kid-facing Challenge Prompt text as-is (e.g.
 // "Desenează un monstru care mănâncă doar broccoli!") — that's an
-// instruction for a child, not a style directive for an image model. A
-// first "make it photorealistic" wrap made results realistic but flattened
-// out the kid's actual drawing (the model substituted its own generic
-// interpretation of the challenge instead of preserving the sketch), which
-// isn't what CAP-6 wants: the Rendered Art should still be recognizably
-// *this drawing*, brought to life. This template makes the sketch the
-// primary source and the challenge text only context, and explicitly tells
-// the model to keep — not correct — the sketch's own weird/funny choices.
+// instruction for a child, not a style directive for an image model.
+// Iteration history: (1) forwarding it verbatim produced flat/illustrative
+// results; (2) a generic "make it photorealistic" wrap fixed realism but
+// flattened the kid's actual drawing (the model substituted its own
+// generic interpretation of the challenge instead of preserving the
+// sketch); (3) this template — the current one — makes the sketch the
+// primary source and the challenge only context, explicitly tells the
+// model to preserve rather than correct the sketch's own choices, and
+// targets a 3D-render look rather than a flat photo.
 function buildTransformPrompt(challengeText) {
-  return `You are a creative 3D artist who transforms children's sketches into realistic, funny 3D creations.
+  return `You are an expert 3D artist and creative visual interpreter.
 
-I will provide you with TWO things:
+Your task is to bring a hand-drawn sketch to life as a believable, high-quality 3D object.
 
-1. **THE CHALLENGE:** a short instruction describing what I was asked to draw.
-2. **MY SKETCH:** a simple hand-drawn sketch created in response to that challenge.
+You will receive:
 
-Your job is to transform my sketch into a **realistic 3D version**, while preserving the original idea, personality, and important visual elements of the drawing.
+**CHALLENGE:** the original drawing challenge given to the artist.
 
-### IMPORTANT RULES
+**SKETCH:** the artist's completed hand-drawn response to the challenge.
 
-* First, read and understand the challenge.
-* Then carefully analyze my sketch.
-* The sketch is the PRIMARY SOURCE for what the final object should look like.
-* Do NOT replace my idea with a completely different or more conventional interpretation of the challenge.
-* Keep the recognizable shapes, proportions, details, imperfections, and funny elements from my drawing.
-* If something in the sketch is strange, impossible, exaggerated, or badly drawn, KEEP IT — reinterpret it creatively as a real 3D object rather than correcting it.
-* Preserve the child's creative decisions.
-* Turn simple lines and shapes into believable materials, surfaces, textures, depth, shadows, and 3D forms.
-* Make the result look like a real physical object that could exist in the real world.
-* The final result should be playful, charming, humorous, and slightly absurd when the original drawing is humorous.
-* Do not make the result boring, generic, or overly polished.
-* Do not add unnecessary elements that were not suggested by the sketch.
-* Do not simply trace the drawing or make it look like a clean digital illustration.
-* The final image should feel like **"someone brought this crazy drawing to life."**
+Your goal is NOT to redesign the sketch.
 
-### CREATIVE INTERPRETATION
+Your goal is to imagine that **the exact thing drawn in the sketch has suddenly become real.**
 
-Use the challenge to understand the intended concept, but use the sketch to determine the specific design.
+---
 
-For example:
+## STEP 1 — UNDERSTAND THE CHALLENGE
 
-Challenge: **"Draw a funny hat."**
+Read the challenge first.
 
-If the sketch shows a hat with enormous ears, tiny wheels, three feathers, crooked eyes, or other strange features, the final 3D version should faithfully incorporate those features.
+Use it to understand the general subject and intention of the drawing.
 
-Do NOT turn it into a normal realistic hat just because that would make more sense.
+The challenge provides context, but it does NOT override the sketch.
 
-Instead, imagine:
+If the challenge says:
 
-**"What would this exact strange drawing look like if it were a real object?"**
+> "Draw a funny hat"
 
-### VISUAL STYLE
+and the sketch contains an unusual hat with eyes, wheels, wings, teeth, antennas, or other unexpected features, those unusual features are part of the idea and must be preserved.
 
-Create a high-quality, realistic 3D render of the transformed object.
+---
 
-* believable materials and textures
-* realistic lighting
-* natural shadows
-* convincing depth and volume
-* detailed surface imperfections
-* cinematic but playful presentation
-* slightly exaggerated proportions when present in the sketch
-* funny and visually appealing
-* looks like a real object photographed or rendered in a professional 3D studio
+## STEP 2 — READ THE SKETCH
 
-The result should retain the **spirit and visual identity of the original sketch**.
+Analyze the sketch carefully.
 
-### FINAL GOAL
+Identify:
 
-The viewer should be able to look at the final 3D image and immediately recognize:
+* the main object
+* its overall silhouette
+* proportions
+* unusual shapes
+* accessories
+* facial features
+* patterns
+* textures suggested by the drawing
+* repeated elements
+* strange or unexpected details
+* relationships between different parts
+* anything that appears intentionally exaggerated
 
-**"That's the funny thing this person drew — but somehow it became real."**
+Treat every meaningful mark as potentially intentional.
+
+Do not automatically assume that something is an error.
+
+---
+
+## STEP 3 — PRESERVE THE ORIGINAL IDEA
+
+This is the most important rule:
+
+**PRESERVE THE IDEA BEFORE IMPROVING THE REALISM.**
+
+The final object must remain clearly recognizable as the thing represented by the original sketch.
+
+Do NOT:
+
+* replace unusual features with normal ones
+* simplify strange details
+* remove imperfections
+* make the object more conventional
+* redesign the object according to your own preferences
+* turn a funny idea into a serious product
+* make the object look like a generic version of the challenge
+
+Instead:
+
+**translate the drawing into reality.**
+
+If the proportions are strange, keep them.
+
+If something is oversized, keep it oversized.
+
+If something is crooked, make it physically crooked.
+
+If something looks impossible, find a believable 3D interpretation that preserves the visual idea.
+
+---
+
+## STEP 4 — INTERPRET AMBIGUOUS ELEMENTS
+
+Children's sketches can contain shapes that are difficult to identify.
+
+When something is ambiguous:
+
+1. Use the challenge as context.
+2. Look at the surrounding shapes.
+3. Consider what the child may have intended.
+4. Choose the interpretation that best preserves the visual joke or creative idea.
+5. Do not replace it with the most conventional interpretation.
+
+When uncertain, prefer **creative preservation over correction**.
+
+---
+
+## STEP 5 — BRING IT INTO THE REAL WORLD
+
+Now imagine that the object physically exists.
+
+Convert the sketch into a convincing 3D object using:
+
+* realistic geometry
+* believable thickness
+* real-world materials
+* surface texture
+* depth
+* reflections
+* imperfections
+* realistic shadows
+* physically plausible construction
+
+The object should feel tangible and physically present.
+
+A line in the drawing might become:
+
+* a metal rod
+* a piece of fabric
+* a wooden part
+* plastic
+* rubber
+* glass
+* fur
+* foam
+* paint
+* food
+* or another appropriate physical material.
+
+Choose materials based on the visual idea, not based on what would make the object more conventional.
+
+---
+
+## STEP 6 — PRESERVE THE HUMOR
+
+The final result should be funny for the SAME REASON the drawing is funny.
+
+Do not add random jokes.
+
+Do not make it absurd just for the sake of being absurd.
+
+Instead, amplify the humor already contained in the sketch by making the strange idea feel real.
+
+The contrast should be:
+
+**ridiculous idea + extremely believable execution**
+
+That contrast is the heart of the image.
+
+---
+
+## VISUAL DIRECTION
+
+Create a high-quality cinematic 3D render.
+
+The object should look:
+
+* realistic
+* tangible
+* detailed
+* professionally rendered
+* playful
+* expressive
+* slightly exaggerated when appropriate
+* visually surprising
+
+Use realistic lighting and materials while preserving the simplicity and personality of the original drawing.
+
+Avoid making it look like:
+
+* a cleaned-up children's illustration
+* a cartoon
+* a generic 3D icon
+* a normal commercial product
+* a completely different object inspired by the challenge
+
+It should look like:
+
+**a real object that somehow escaped directly from the sketch.**
+
+---
+
+## FINAL CONSISTENCY CHECK
+
+Before producing the final image, mentally compare the result with the original sketch.
+
+Ask:
+
+**"If I placed the sketch next to the final image, would someone immediately recognize that they are the same creation?"**
+
+If the answer is no, modify the result.
+
+Prioritize:
+
+**1. Original idea**
+**2. Recognizable visual features**
+**3. Humor and personality**
+**4. Realistic 3D interpretation**
+**5. Visual polish**
+
+Never sacrifice the original idea for realism.
+
+---
+
+## INPUT
 
 CHALLENGE:
+
 ${challengeText}
 
 SKETCH:
-(the attached image)`;
+
+(the attached image)
+
+## OUTPUT
+
+Create ONLY the final transformed image.
+
+Do not explain your interpretation.
+
+Do not describe the changes.
+
+Do not generate alternative designs.
+
+Bring the sketch to life.`;
 }
 
 // Single global Cooldown (AD-5): one fixed KV key, no per-session/per-IP

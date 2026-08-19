@@ -30,6 +30,7 @@
 
   const drawEndBtn = document.getElementById("drawEndBtn");
   const drawClearBtn = document.getElementById("drawClearBtn");
+  const drawFinishBtn = document.getElementById("drawFinishBtn");
   const drawCanvasPrompt = document.getElementById("drawCanvasPrompt");
   const drawSurface = document.getElementById("drawSurface");
   const drawCtx = drawSurface.getContext("2d");
@@ -225,8 +226,19 @@
     clearTimeout(resizeTimer); // a stale debounced resize must never fire on a locked canvas
     setDrawable(false);
     setClearEnabled(false);
+    drawFinishBtn.hidden = true;
     capturedImage = captureDownscaled();
     submitTransform();
+  }
+
+  // Kid taps "Termină!" before the timer runs out: stop the ring's own
+  // interval first (ring.reset(), not letting it reach 0) so its onComplete
+  // can't also fire handleComplete a second time, then run the exact same
+  // completion path as a natural timeout.
+  function finishEarly() {
+    if (!started || locked) return;
+    ring.reset();
+    handleComplete();
   }
 
   // --- Transform submit/result (Story 1.5) --------------------------------
@@ -356,6 +368,7 @@
     activePointerId = null;
     capturedImage = null;
     drawCanvasPrompt.textContent = currentPrompt.text;
+    drawFinishBtn.hidden = true;
 
     QCUI.showScreen("drawCanvas");
     sizeCanvas();
@@ -377,6 +390,7 @@
     capturedImage = null;
     renderedImageDataUrl = null;
     showingSketch = false;
+    drawFinishBtn.hidden = true;
     clearTimeout(resizeTimer); // leaving the screen: a pending resize must not fire later
     QCUI.showScreen("start");
   }
@@ -411,8 +425,11 @@
     started = true;
     setDrawable(true);
     setClearEnabled(false);
+    drawFinishBtn.hidden = false;
     ring.start();
   });
+
+  drawFinishBtn.addEventListener("click", finishEarly);
 
   let resizeTimer = null;
   window.addEventListener("resize", () => {
