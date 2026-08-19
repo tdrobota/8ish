@@ -250,6 +250,7 @@
       <button id="startQuestionsBtn" class="btn-start btn-mode" type="button">Întrebări</button>
       <button id="startChallengesBtn" class="btn-start btn-mode btn-mode-alt" type="button">Provocări</button>
       <button id="startGamesBtn" class="btn-start btn-mode btn-mode-games" type="button">Jocuri</button>
+      <button id="startDrawBtn" class="btn-start btn-mode btn-mode-draw" type="button">Desenează</button>
     </div>
     <p class="hint">Atinge ecranul pentru următoarea. Atinge Gata când termini.</p>
   </main>
@@ -294,10 +295,37 @@
     <p id="tapHint" class="tap-hint" aria-hidden="true">Atinge pentru următoarea</p>
   </div>
 
+  <!-- Draw prompt screen -->
+  <div id="drawPrompt" class="screen draw-prompt-screen" hidden>
+    <button id="drawPromptBackBtn" class="btn-end btn-back" type="button">‹ Înapoi</button>
+    <p class="eyebrow">Desenează</p>
+    <p id="drawPromptText" class="draw-prompt-text" aria-live="polite"></p>
+    <button id="drawStartBtn" class="btn-start btn-mode" type="button">Desenează!</button>
+  </div>
+
+  <!-- Draw canvas screen -->
+  <div id="drawCanvas" class="screen draw-canvas-screen" hidden>
+    <button id="drawEndBtn" class="btn-end" type="button" aria-label="Încheie desenul">Gata</button>
+    <button id="drawClearBtn" class="btn-end btn-back" type="button">Șterge</button>
+    <p id="drawCanvasPrompt" class="draw-canvas-caption" aria-live="polite"></p>
+    <div class="draw-canvas-wrap">
+      <canvas id="drawSurface" class="draw-surface" width="512" height="512"></canvas>
+      <button id="drawTimerRing" class="timer-ring draw-timer-ring" type="button" aria-label="Pornește cronometrul">
+        <svg viewBox="0 0 100 100">
+          <circle class="timer-ring-bg" cx="50" cy="50" r="44" />
+          <circle id="drawTimerRingFg" class="timer-ring-fg" cx="50" cy="50" r="44" />
+        </svg>
+        <span id="drawTimerNumber" class="timer-number"></span>
+      </button>
+    </div>
+  </div>
+
   <script src="questions.js"></script>
   <script src="challenges.js"></script>
   <script src="games.js"></script>
   <script src="ui.js"></script>
+  <script src="prompts.js"></script>
+  <script src="draw.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

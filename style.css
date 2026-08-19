@@ -311,6 +311,11 @@ body {
   background: var(--paper);
 }
 
+.btn-end:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .tap-hint {
   position: absolute;
   left: 0;
@@ -544,4 +549,71 @@ body {
   font-weight: 700;
   line-height: 1.35;
   font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+}
+
+/* ---------- Desenează (draw) mode ---------- */
+
+.btn-mode-draw {
+  background: var(--card-4);
+}
+
+.draw-prompt-screen {
+  background: var(--paper);
+  padding: max(2rem, env(safe-area-inset-top)) max(2rem, env(safe-area-inset-right))
+    max(2rem, env(safe-area-inset-bottom)) max(2rem, env(safe-area-inset-left));
+  gap: 2rem;
+  text-align: center;
+}
+
+.draw-prompt-text {
+  margin: 0;
+  max-width: 32ch;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.15;
+  color: var(--ink);
+  font-size: clamp(1.6rem, 5.5vw, 2.6rem);
+}
+
+.draw-canvas-screen {
+  background: var(--paper);
+  padding: max(1.25rem, env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right))
+    max(1.5rem, env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left));
+  gap: 1rem;
+}
+
+.draw-canvas-caption {
+  margin: 0;
+  max-width: 40ch;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(0.95rem, 2.6vw, 1.3rem);
+  color: var(--ink);
+  opacity: 0.75;
+}
+
+.draw-canvas-wrap {
+  position: relative;
+  width: min(85vw, 60vh, 560px);
+  aspect-ratio: 1 / 1;
+}
+
+.draw-surface {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  border: 4px solid var(--ink);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-ink);
+  touch-action: none;
+}
+
+.draw-timer-ring {
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
 }
