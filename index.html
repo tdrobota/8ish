@@ -320,6 +320,33 @@
     </div>
   </div>
 
+  <!-- Draw result screen -->
+  <div id="drawResult" class="screen draw-result-screen" hidden>
+    <button id="drawResultEndBtn" class="btn-end" type="button" aria-label="Încheie">Gata</button>
+
+    <div id="drawWaiting" class="draw-result-waiting">
+      <div class="draw-spinner" aria-hidden="true"></div>
+      <p class="draw-result-message">Se creează opera ta…</p>
+    </div>
+
+    <div id="drawSuccess" class="draw-result-success" hidden>
+      <div class="draw-art-wrap">
+        <img id="drawResultMainImg" class="draw-result-main-img" alt="Opera ta de artă" />
+        <button id="drawToggleBtn" class="draw-toggle-btn" type="button" aria-label="Arată desenul original">
+          <img id="drawToggleThumb" class="draw-toggle-thumb" alt="" />
+        </button>
+      </div>
+      <div class="draw-result-actions">
+        <button id="drawNewBtn" class="btn-start btn-mode draw-new-btn" type="button">Desen nou</button>
+      </div>
+    </div>
+
+    <div id="drawError" class="draw-result-error" hidden>
+      <p id="drawErrorMessage" class="draw-result-message" aria-live="polite"></p>
+      <button id="drawRetryBtn" class="btn-start btn-mode draw-retry-btn" type="button">Mai încearcă!</button>
+    </div>
+  </div>
+
   <script src="questions.js"></script>
   <script src="challenges.js"></script>
   <script src="games.js"></script>

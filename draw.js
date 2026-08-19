@@ -1,7 +1,8 @@
-// Desenează (draw) mode — Story 1.2. Independent module: depends only on
-// ui.js (QCUI) and prompts.js (window.DRAW_PROMPTS). Never touches app.js or
-// its state. No network call in this story — the captured sketch stays in
-// memory only.
+// Desenează (draw) mode — Story 1.2 (canvas capture) + Story 1.5 (transform
+// submit/result). Independent module: depends only on ui.js (QCUI) and
+// prompts.js (window.DRAW_PROMPTS). Never touches app.js or its state. The
+// only network call is the POST to /api/transform below; the captured
+// sketch itself is otherwise held in memory only.
 (() => {
   "use strict";
 
@@ -12,8 +13,10 @@
 
   const drawPromptScreen = document.getElementById("drawPrompt");
   const drawCanvasScreen = document.getElementById("drawCanvas");
+  const drawResultScreen = document.getElementById("drawResult");
   QCUI.registerScreen("drawPrompt", drawPromptScreen);
   QCUI.registerScreen("drawCanvas", drawCanvasScreen);
+  QCUI.registerScreen("drawResult", drawResultScreen);
 
   const startDrawBtn = document.getElementById("startDrawBtn");
   const drawPromptText = document.getElementById("drawPromptText");
@@ -29,6 +32,26 @@
   const drawTimerRingFg = document.getElementById("drawTimerRingFg");
   const drawTimerNumber = document.getElementById("drawTimerNumber");
 
+  const drawResultEndBtn = document.getElementById("drawResultEndBtn");
+  const drawWaiting = document.getElementById("drawWaiting");
+  const drawSuccess = document.getElementById("drawSuccess");
+  const drawError = document.getElementById("drawError");
+  const drawResultMainImg = document.getElementById("drawResultMainImg");
+  const drawToggleBtn = document.getElementById("drawToggleBtn");
+  const drawToggleThumb = document.getElementById("drawToggleThumb");
+  const drawNewBtn = document.getElementById("drawNewBtn");
+  const drawErrorMessage = document.getElementById("drawErrorMessage");
+  const drawRetryBtn = document.getElementById("drawRetryBtn");
+
+  // Kid-friendly Romanian copy per failure kind (Design Notes). Cooldown maps
+  // from a 429; every other non-200 (502/504/anything else) shares the
+  // generic provider/timeout message; a rejected fetch itself is "offline".
+  const RESULT_MESSAGES = {
+    cooldown: "Așteaptă puțin și mai încearcă o dată!",
+    provider_error: "Hopa! Ceva nu a mers bine. Mai încearcă!",
+    offline: "Ai nevoie de internet ca desenul tău să prindă viață. Încearcă din nou!",
+  };
+
   // In-memory only (mirrors app.js's session state: nothing here is ever persisted).
   let pool = [];
   let currentPrompt = null;
@@ -38,6 +61,10 @@
   let lastPoint = null;
   let activePointerId = null; // the single pointer currently drawing; ignore all others
   let capturedImage = null; // { dataUrl, width, height }, ≤512×512, in memory only
+  let renderedImageDataUrl = null; // data: URL built from the successful transform response
+  let showingSketch = false; // drawResult success view: rendered art (false) vs. sketch (true)
+  let inFlight = false; // a /api/transform request is currently pending
+  let requestToken = 0; // bumped whenever the flow is abandoned, to drop stale in-flight responses
 
   const ring = QCUI.createCountdownRing(
     { ringButton: drawTimerRing, ringFg: drawTimerRingFg, number: drawTimerNumber },
@@ -194,11 +221,123 @@
     setDrawable(false);
     setClearEnabled(false);
     capturedImage = captureDownscaled();
+    submitTransform();
+  }
+
+  // --- Transform submit/result (Story 1.5) --------------------------------
+
+  // capturedImage.dataUrl is always "data:image/png;base64,...." from
+  // toDataURL(); AD-6 wants raw base64 with no prefix on the wire.
+  function stripDataUrlPrefix(dataUrl) {
+    const commaIndex = dataUrl.indexOf(",");
+    return commaIndex === -1 ? dataUrl : dataUrl.slice(commaIndex + 1);
+  }
+
+  function showResultSubState(state) {
+    drawWaiting.hidden = state !== "waiting";
+    drawSuccess.hidden = state !== "success";
+    drawError.hidden = state !== "error";
+  }
+
+  function updateResultImages() {
+    const sketchUrl = capturedImage ? capturedImage.dataUrl : "";
+    if (showingSketch) {
+      drawResultMainImg.src = sketchUrl;
+      drawResultMainImg.alt = "Desenul tău original";
+      drawToggleThumb.src = renderedImageDataUrl || "";
+      drawToggleBtn.setAttribute("aria-label", "Arată opera ta");
+    } else {
+      drawResultMainImg.src = renderedImageDataUrl || "";
+      drawResultMainImg.alt = "Opera ta de artă";
+      drawToggleThumb.src = sketchUrl;
+      drawToggleBtn.setAttribute("aria-label", "Arată desenul original");
+    }
+  }
+
+  function finishSuccess(base64Image) {
+    renderedImageDataUrl = "data:image/png;base64," + base64Image;
+    showingSketch = false;
+    updateResultImages();
+    showResultSubState("success");
+    inFlight = false;
+    drawRetryBtn.disabled = false;
+  }
+
+  function finishFailure(kind) {
+    drawErrorMessage.textContent = RESULT_MESSAGES[kind] || RESULT_MESSAGES.provider_error;
+    showResultSubState("error");
+    inFlight = false;
+    drawRetryBtn.disabled = false;
+  }
+
+  // POSTs the already-captured sketch to /api/transform and routes the
+  // response to the success/error sub-state. Re-invoked as-is by retry
+  // (same captured sketch, no new capture) and is a no-op while a request
+  // is already pending.
+  async function submitTransform() {
+    if (inFlight) return;
+    if (!capturedImage || !capturedImage.dataUrl) {
+      console.error("QCDraw: submitTransform called with no captured sketch");
+      return;
+    }
+    inFlight = true;
+    drawRetryBtn.disabled = true;
+    const token = requestToken;
+    showResultSubState("waiting");
+    QCUI.showScreen("drawResult");
+
+    let response;
+    try {
+      response = await fetch("/api/transform", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          image: stripDataUrlPrefix(capturedImage.dataUrl),
+          prompt: currentPrompt.text,
+        }),
+      });
+    } catch (e) {
+      // Offline / network failure: the fetch call itself rejected.
+      if (token === requestToken) finishFailure("offline");
+      return;
+    }
+
+    // The kid navigated away (Gata / Desen nou) while this was in flight —
+    // drop the response; the navigating action already reset flow state.
+    if (token !== requestToken) return;
+
+    if (response.status === 200) {
+      let body = null;
+      try {
+        body = await response.json();
+      } catch (e) {
+        body = null;
+      }
+      if (token !== requestToken) return;
+      if (body && typeof body.image === "string" && body.image.length > 0) {
+        finishSuccess(body.image);
+      } else {
+        finishFailure("provider_error");
+      }
+    } else if (response.status === 429) {
+      finishFailure("cooldown");
+    } else {
+      // 502, 504, or anything else unexpected: same generic friendly message.
+      finishFailure("provider_error");
+    }
   }
 
   // --- Screen flow -------------------------------------------------------
 
   function enterDrawPrompt() {
+    // Abandon any in-flight/previous transform flow when starting fresh —
+    // matches "no continuous draw loop" resolution (Story 1.2 deferred finding).
+    requestToken += 1;
+    inFlight = false;
+    drawRetryBtn.disabled = false;
+    capturedImage = null;
+    renderedImageDataUrl = null;
+    showingSketch = false;
     currentPrompt = nextPrompt();
     drawPromptText.textContent = currentPrompt.text;
     QCUI.showScreen("drawPrompt");
@@ -221,12 +360,18 @@
   }
 
   function exitToStart() {
+    requestToken += 1; // drop any in-flight transform response
+    inFlight = false;
+    drawRetryBtn.disabled = false;
     ring.reset();
     started = false;
     locked = false;
     isDrawing = false;
     lastPoint = null;
     activePointerId = null;
+    capturedImage = null;
+    renderedImageDataUrl = null;
+    showingSketch = false;
     clearTimeout(resizeTimer); // leaving the screen: a pending resize must not fire later
     QCUI.showScreen("start");
   }
@@ -235,6 +380,20 @@
   drawPromptBackBtn.addEventListener("click", () => QCUI.showScreen("start"));
   drawStartBtn.addEventListener("click", enterDrawCanvas);
   drawEndBtn.addEventListener("click", exitToStart);
+  drawResultEndBtn.addEventListener("click", exitToStart);
+
+  drawToggleBtn.addEventListener("click", () => {
+    showingSketch = !showingSketch;
+    updateResultImages();
+  });
+
+  drawRetryBtn.addEventListener("click", () => {
+    // submitTransform() is itself a no-op while inFlight, satisfying
+    // "retry is inert while a request is already pending".
+    submitTransform();
+  });
+
+  drawNewBtn.addEventListener("click", enterDrawPrompt);
 
   drawClearBtn.addEventListener("click", () => {
     if (started || locked) return; // clear is only active before the countdown starts
@@ -257,9 +416,9 @@
     resizeTimer = setTimeout(sizeCanvas, 80);
   });
 
-  // Debug/verification hook only — the capture never leaves memory or this
-  // module on its own; nothing here performs a network call.
+  // Debug/verification hook only.
   window.QCDraw = {
     getCapture: () => capturedImage,
+    isInFlight: () => inFlight,
   };
 })();
