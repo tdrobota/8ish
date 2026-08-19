@@ -228,6 +228,12 @@
   endBtn.addEventListener("click", endSession);
   tapLayer.addEventListener("click", handleTap);
   tapLayer.addEventListener("keydown", (event) => {
+    // The ring is itself a focusable <button> nested inside tapLayer: Enter/
+    // Space on it triggers the browser's native click synthesis (handled by
+    // timerRing's own click listener below) *and* bubbles this keydown up
+    // before that click ever fires — without this guard, both handlers run,
+    // advancing to a new question and then immediately starting its timer.
+    if (event.target === timerRing) return;
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       handleTap();

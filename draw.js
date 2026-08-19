@@ -487,7 +487,14 @@
   window.addEventListener("resize", () => {
     if (drawCanvasScreen.hidden || started || locked) return;
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(sizeCanvas, 80);
+    resizeTimer = setTimeout(() => {
+      // Re-check: sizeCanvas() repaints to a blank background and is only
+      // safe pre-drawing. The guard above only holds at event time, not 80ms
+      // later — a resize that lands right before the kid taps the timer ring
+      // to start drawing could otherwise wipe an in-progress sketch.
+      if (drawCanvasScreen.hidden || started || locked) return;
+      sizeCanvas();
+    }, 80);
   });
 
   // Debug/verification hook only.
