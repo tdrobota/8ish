@@ -256,8 +256,6 @@ SKETCH:
 
 Create ONLY the final transformed image.
 
-Output a square image (1:1 aspect ratio), matching the shape of the original sketch.
-
 Do not explain your interpretation.
 
 Do not describe the changes.
