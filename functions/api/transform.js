@@ -11,6 +11,13 @@
 const MODEL_ID = "@cf/black-forest-labs/flux-2-klein-4b";
 const TIMEOUT_MS = 30000;
 
+// Single global Cooldown (AD-5): one fixed KV key, no per-session/per-IP
+// keying, matching this single-client hobby app's scale. Duration is a
+// tuning detail (PRD OQ3 is explicitly deferred) — 90s is the midpoint of
+// the PRD's suggested 60-120s range.
+const COOLDOWN_MS = 90000;
+const COOLDOWN_KV_KEY = "lastAttempt";
+
 class TimeoutError extends Error {
   constructor(message) {
     super(message);
@@ -57,7 +64,52 @@ function raceWithTimeout(promise, ms) {
   });
 }
 
+// Records the current attempt's timestamp for the Cooldown. This must never
+// be allowed to turn an otherwise-successful (or already-classified error)
+// response into a different one: a transient KV write failure here is
+// logged and swallowed, not propagated, so it can't sacrifice a completed
+// attempt at the response stage.
+async function recordAttempt(env) {
+  try {
+    await env.COOLDOWN_KV.put(COOLDOWN_KV_KEY, String(Date.now()));
+  } catch (e) {
+    console.error("Cooldown KV write failed:", e);
+  }
+}
+
 export async function onRequestPost(context) {
+  let last;
+  try {
+    last = await context.env.COOLDOWN_KV.get(COOLDOWN_KV_KEY);
+  } catch (error) {
+    console.error("Cooldown KV read failed:", error);
+    // Fail closed on cost-control infrastructure failure: if we can't even
+    // confirm the Cooldown has elapsed, don't spend money calling env.AI.
+    return jsonResponse(502, {
+      error: { code: "provider_error", message: "cooldown check failed" },
+    });
+  }
+
+  if (last) {
+    const parsed = Number(last);
+    // Only treat the stored value as an active cooldown when it parses to a
+    // finite number; a corrupted/unexpected value is deliberately treated
+    // the same as "no prior attempt" rather than silently no-op-ing via NaN.
+    if (Number.isFinite(parsed)) {
+      // Clamp for clock skew: a stored timestamp in the future (skew, stale
+      // value) must not produce a negative elapsed / nonsensical retry time.
+      const elapsed = Math.max(0, Date.now() - parsed);
+      if (elapsed < COOLDOWN_MS) {
+        return jsonResponse(429, {
+          error: {
+            code: "cooldown",
+            retryAfterSeconds: Math.ceil((COOLDOWN_MS - elapsed) / 1000),
+          },
+        });
+      }
+    }
+  }
+
   try {
     const { image, prompt } = await context.request.json();
 
@@ -80,6 +132,7 @@ export async function onRequestPost(context) {
     const result = await raceWithTimeout(runPromise, TIMEOUT_MS);
 
     if (typeof result?.image !== "string" || result.image.length === 0) {
+      await recordAttempt(context.env);
       return jsonResponse(502, {
         error: {
           code: "provider_error",
@@ -88,9 +141,11 @@ export async function onRequestPost(context) {
       });
     }
 
+    await recordAttempt(context.env);
     return jsonResponse(200, { image: stripDataUriPrefix(result.image) });
   } catch (error) {
     console.error("Transform Proxy error:", error);
+    await recordAttempt(context.env);
     if (error instanceof TimeoutError) {
       return jsonResponse(504, { error: { code: "timeout" } });
     }
