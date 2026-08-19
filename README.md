@@ -24,8 +24,9 @@ Then open `http://localhost:8080`.
 
 ## Structure
 
-- `index.html`, `style.css`, `app.js` — the app (index.html also holds the
-  shared SVG pictogram sprite used by Jocuri)
+- `index.html`, `style.css`, `app.js`, `ui.js` — the app (index.html also
+  holds the shared SVG pictogram sprite used by Jocuri; ui.js is the shared
+  UI kernel — screens registry, icon helper, countdown ring)
 - `questions.js` — the ~200-question seed bank
 - `challenges.js` — the on-camera dare seed bank
 - `games.js` — the traditional Romanian games seed bank (name, description,

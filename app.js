@@ -5,19 +5,15 @@
   const CHALLENGES = window.CHALLENGES;
   const GAMES = window.GAMES;
   const CARD_COUNT = 6;
-  const RING_CIRCUMFERENCE = 2 * Math.PI * 44;
-  const SVG_NS = "http://www.w3.org/2000/svg";
 
   const startScreen = document.getElementById("start");
   const stageScreen = document.getElementById("stage");
   const gamesListScreen = document.getElementById("gamesList");
   const gameDetailScreen = document.getElementById("gameDetail");
-  const screens = {
-    start: startScreen,
-    stage: stageScreen,
-    gamesList: gamesListScreen,
-    gameDetail: gameDetailScreen,
-  };
+  QCUI.registerScreen("start", startScreen);
+  QCUI.registerScreen("stage", stageScreen);
+  QCUI.registerScreen("gamesList", gamesListScreen);
+  QCUI.registerScreen("gameDetail", gameDetailScreen);
   const startQuestionsBtn = document.getElementById("startQuestionsBtn");
   const startChallengesBtn = document.getElementById("startChallengesBtn");
   const startGamesBtn = document.getElementById("startGamesBtn");
@@ -38,23 +34,6 @@
   const timerRingFg = document.getElementById("timerRingFg");
   const timerNumber = document.getElementById("timerNumber");
 
-  function showScreen(name) {
-    Object.keys(screens).forEach((key) => {
-      screens[key].hidden = key !== name;
-    });
-  }
-
-  function iconEl(key) {
-    const svg = document.createElementNS(SVG_NS, "svg");
-    svg.setAttribute("class", "icon");
-    svg.setAttribute("viewBox", "0 0 64 64");
-    svg.setAttribute("aria-hidden", "true");
-    const use = document.createElementNS(SVG_NS, "use");
-    use.setAttribute("href", "#icon-" + key);
-    svg.appendChild(use);
-    return svg;
-  }
-
   function renderGamesList() {
     gameGrid.textContent = "";
     GAMES.forEach((game, index) => {
@@ -65,7 +44,7 @@
       const badge = document.createElement("span");
       badge.className = "game-card-icon";
       badge.style.background = `var(--card-${index % CARD_COUNT})`;
-      badge.appendChild(iconEl(game.icon));
+      badge.appendChild(QCUI.iconEl(game.icon));
 
       const name = document.createElement("p");
       name.className = "game-card-name";
@@ -75,7 +54,7 @@
       card.appendChild(name);
       card.addEventListener("click", () => {
         renderGameDetail(game, index);
-        showScreen("gameDetail");
+        QCUI.showScreen("gameDetail");
       });
 
       gameGrid.appendChild(card);
@@ -85,7 +64,7 @@
   function renderGameDetail(game, index) {
     gameDetailBadge.textContent = "";
     gameDetailBadge.style.background = `var(--card-${index % CARD_COUNT})`;
-    gameDetailBadge.appendChild(iconEl(game.icon));
+    gameDetailBadge.appendChild(QCUI.iconEl(game.icon));
     gameDetailName.textContent = game.name;
     gameDetailPlayers.textContent = game.players;
     gameDetailDescription.textContent = game.description;
@@ -97,7 +76,7 @@
 
       const iconWrap = document.createElement("span");
       iconWrap.className = "step-icon";
-      iconWrap.appendChild(iconEl(step.icon));
+      iconWrap.appendChild(QCUI.iconEl(step.icon));
 
       const text = document.createElement("p");
       text.className = "step-text";
@@ -117,8 +96,12 @@
   let pool = [];
   let cardIndex = 0;
   let firstTapPending = false;
-  let timerInterval = null;
-  let pendingSeconds = 0; // duration of the current card's timer, until the kid starts it
+
+  const ring = QCUI.createCountdownRing({
+    ringButton: timerRing,
+    ringFg: timerRingFg,
+    number: timerNumber,
+  });
 
   function currentBank() {
     return mode === "challenges" ? CHALLENGES : QUESTIONS;
@@ -140,56 +123,6 @@
       pool = shuffled(currentBank().length);
     }
     return pool.pop();
-  }
-
-  function resetRingVisual() {
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-    }
-    timerRingFg.style.transition = "none";
-    timerRingFg.style.strokeDashoffset = "0";
-    timerRing.classList.remove("timer-idle");
-    timerNumber.classList.remove("timer-label", "timer-done");
-    pendingSeconds = 0;
-  }
-
-  // Shows the ring full, labeled "START" — the kid taps it to begin the countdown.
-  function setTimerIdle(seconds) {
-    resetRingVisual();
-    pendingSeconds = seconds;
-    timerRing.classList.add("timer-idle");
-    timerNumber.classList.add("timer-label");
-    timerNumber.textContent = "START";
-  }
-
-  function startTimer() {
-    if (!pendingSeconds || timerInterval) return;
-    const seconds = pendingSeconds;
-    pendingSeconds = 0;
-
-    timerRing.classList.remove("timer-idle");
-    timerNumber.classList.remove("timer-label");
-    timerNumber.textContent = String(seconds);
-    timerRingFg.style.transition = "none";
-    timerRingFg.style.strokeDashoffset = "0";
-    // Force reflow so the transition below actually animates from 0.
-    void timerRingFg.getBoundingClientRect();
-    timerRingFg.style.transition = `stroke-dashoffset ${seconds}s linear`;
-    timerRingFg.style.strokeDashoffset = String(RING_CIRCUMFERENCE);
-
-    let remaining = seconds;
-    timerInterval = setInterval(() => {
-      remaining -= 1;
-      if (remaining <= 0) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        timerNumber.textContent = "GATA!";
-        timerNumber.classList.add("timer-label", "timer-done");
-      } else {
-        timerNumber.textContent = String(remaining);
-      }
-    }, 1000);
   }
 
   function fitText() {
@@ -223,7 +156,7 @@
   }
 
   function showNextQuestion() {
-    resetRingVisual();
+    ring.reset();
 
     const bank = currentBank();
     const idx = drawNextIndex();
@@ -239,7 +172,7 @@
 
     if (seconds > 0) {
       timerRing.hidden = false;
-      setTimerIdle(seconds);
+      ring.setIdle(seconds);
     } else {
       timerRing.hidden = true;
     }
@@ -258,18 +191,18 @@
     cardIndex = 0;
     firstTapPending = true;
 
-    showScreen("stage");
+    QCUI.showScreen("stage");
     tapHint.classList.remove("hidden");
 
     showNextQuestion();
   }
 
   function endSession() {
-    resetRingVisual();
+    ring.reset();
     pool = [];
     questionText.textContent = "";
     timerRing.hidden = true;
-    showScreen("start");
+    QCUI.showScreen("start");
   }
 
   function dismissHint() {
@@ -288,10 +221,10 @@
   startChallengesBtn.addEventListener("click", () => startSession("challenges"));
   startGamesBtn.addEventListener("click", () => {
     renderGamesList();
-    showScreen("gamesList");
+    QCUI.showScreen("gamesList");
   });
-  gamesBackBtn.addEventListener("click", () => showScreen("start"));
-  gameDetailBackBtn.addEventListener("click", () => showScreen("gamesList"));
+  gamesBackBtn.addEventListener("click", () => QCUI.showScreen("start"));
+  gameDetailBackBtn.addEventListener("click", () => QCUI.showScreen("gamesList"));
   endBtn.addEventListener("click", endSession);
   tapLayer.addEventListener("click", handleTap);
   tapLayer.addEventListener("keydown", (event) => {
@@ -304,7 +237,7 @@
   timerRing.addEventListener("click", (event) => {
     event.stopPropagation();
     dismissHint();
-    startTimer();
+    ring.start();
   });
 
   let resizeTimer = null;
