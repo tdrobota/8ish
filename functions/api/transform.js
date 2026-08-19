@@ -11,11 +11,20 @@
 const MODEL_ID = "@cf/black-forest-labs/flux-2-klein-4b";
 const TIMEOUT_MS = 30000;
 
+// Not a real secret (it ships in public client JS, see draw.js) — just
+// filters out generic scanners/bots hitting this endpoint blindly. The
+// actual worst-case-cost backstop is COOLDOWN_MS below: Cloudflare's free
+// plan can't express an hourly rate-limit rule (10s max counting window),
+// so the global cooldown is what bounds billed AI calls per hour.
+const APP_TOKEN = "f73dc90199f1fa117ffc96c2ed278fc6";
+
 // Single global Cooldown (AD-5): one fixed KV key, no per-session/per-IP
-// keying, matching this single-client hobby app's scale. Duration is a
-// tuning detail (PRD OQ3 is explicitly deferred) — 90s is the midpoint of
-// the PRD's suggested 60-120s range.
-const COOLDOWN_MS = 90000;
+// keying, matching this single-client hobby app's scale. 6 minutes caps
+// billed Workers AI calls at exactly 10/hour system-wide, regardless of
+// caller count — the hard ceiling on worst-case abuse cost (deliberately
+// deviates from the PRD OQ3 60-120s suggestion, chosen instead for this
+// bound now that the endpoint is reachable by anyone, not just the app UI).
+const COOLDOWN_MS = 360000;
 const COOLDOWN_KV_KEY = "lastAttempt";
 
 class TimeoutError extends Error {
@@ -78,6 +87,10 @@ async function recordAttempt(env) {
 }
 
 export async function onRequestPost(context) {
+  if (context.request.headers.get("x-app-token") !== APP_TOKEN) {
+    return jsonResponse(401, { error: { code: "unauthorized" } });
+  }
+
   let last;
   try {
     last = await context.env.COOLDOWN_KV.get(COOLDOWN_KV_KEY);

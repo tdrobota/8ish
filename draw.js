@@ -11,6 +11,11 @@
   const STROKE_COLOR = "#16171d"; // --ink
   const CANVAS_BG = "#ffffff";
 
+  // Not a real secret (it ships in public client JS) — just filters out
+  // generic scanners/bots hitting /api/transform blindly. Must match the
+  // literal in functions/api/transform.js.
+  const APP_TOKEN = "f73dc90199f1fa117ffc96c2ed278fc6";
+
   const drawPromptScreen = document.getElementById("drawPrompt");
   const drawCanvasScreen = document.getElementById("drawCanvas");
   const drawResultScreen = document.getElementById("drawResult");
@@ -290,7 +295,7 @@
     try {
       response = await fetch("/api/transform", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-app-token": APP_TOKEN },
         body: JSON.stringify({
           image: stripDataUrlPrefix(capturedImage.dataUrl),
           prompt: currentPrompt.text,

@@ -651,6 +651,12 @@ body {
   gap: 1rem;
 }
 
+.draw-result-waiting[hidden],
+.draw-result-success[hidden],
+.draw-result-error[hidden] {
+  display: none;
+}
+
 .draw-result-message {
   margin: 0;
   max-width: 34ch;

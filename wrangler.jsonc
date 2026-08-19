@@ -1,0 +1,20 @@
+{
+  "name": "8ishqa",
+  "compatibility_date": "2026-08-15",
+  "main": "worker.js",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "."
+  },
+  "ai": {
+    "binding": "AI"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "COOLDOWN_KV",
+      "id": "54b762d32d854a9bba9604472c4dc93e"
+    }
+  ]
+}
