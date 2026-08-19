@@ -297,28 +297,46 @@
     drawRetryBtn.disabled = false;
   }
 
+  // Synchronous data: URL -> Blob decode. Deliberately not fetch()-based:
+  // an `await` between the tap and navigator.share() drops iOS Safari's
+  // user-activation flag, silently no-op-ing both share() and the
+  // window.open() fallback (reported: worked on Android, did nothing on
+  // iOS). Decoding synchronously keeps share() in the same task as the tap.
+  function dataUrlToBlob(dataUrl) {
+    const commaIndex = dataUrl.indexOf(",");
+    const meta = dataUrl.slice(5, commaIndex); // e.g. "image/png;base64"
+    const mime = meta.split(";")[0] || "image/png";
+    const binary = atob(dataUrl.slice(commaIndex + 1));
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new Blob([bytes], { type: mime });
+  }
+
   // CAP-8: save via the native share sheet (Web Share API with a file),
   // not an <a download> link — iOS Safari doesn't reliably turn a download
   // link into "Save Image" the way the share sheet does. Saves whatever is
   // currently shown (rendered art or, if toggled, the original sketch).
-  async function saveCurrentImage() {
+  function saveCurrentImage() {
     const dataUrl = drawResultMainImg.src;
-    if (!dataUrl) return;
+    if (!dataUrl || !dataUrl.startsWith("data:")) return; // unset <img>.src resolves to the document's own URL, not "" — guard explicitly
     try {
-      const blob = await (await fetch(dataUrl)).blob();
+      const blob = dataUrlToBlob(dataUrl);
       const file = new File([blob], "opera-mea.png", { type: "image/png" });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file] });
+        navigator.share({ files: [file] }).catch((e) => {
+          // AbortError from a cancelled share sheet is expected/silent;
+          // anything else is logged but never surfaced as an error screen —
+          // saving is a side action, its failure shouldn't disrupt the
+          // result the kid already has.
+          if (e.name !== "AbortError") console.error("QCDraw: save failed", e);
+        });
       } else {
         // Fallback for browsers without the file-share API: open the image
         // full-screen so it can at least be long-press-saved manually.
         window.open(dataUrl, "_blank");
       }
     } catch (e) {
-      // AbortError from a cancelled share sheet is expected/silent; anything
-      // else is logged but never surfaced as an error screen — saving is a
-      // side action, its failure shouldn't disrupt the result the kid already has.
-      if (e.name !== "AbortError") console.error("QCDraw: save failed", e);
+      console.error("QCDraw: save failed", e);
     }
   }
 
