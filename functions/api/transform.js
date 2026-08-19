@@ -101,12 +101,13 @@ SKETCH:
 }
 
 // Single global Cooldown (AD-5): one fixed KV key, no per-session/per-IP
-// keying, matching this single-client hobby app's scale. 6 minutes caps
-// billed Workers AI calls at exactly 10/hour system-wide, regardless of
-// caller count — the hard ceiling on worst-case abuse cost (deliberately
-// deviates from the PRD OQ3 60-120s suggestion, chosen instead for this
-// bound now that the endpoint is reachable by anyone, not just the app UI).
-const COOLDOWN_MS = 360000;
+// keying, matching this single-client hobby app's scale. Every attempt
+// (success or failure) resets this clock, so it also gates back-to-back
+// legitimate use — 6 minutes (10/hour worst-case cap) made repeated kid
+// drawing sessions hit the wait screen constantly, so this trades a higher
+// worst-case-abuse ceiling (~40/hour) for the app actually feeling
+// responsive during normal use. 90s is the PRD OQ3 60-120s suggestion.
+const COOLDOWN_MS = 90000;
 const COOLDOWN_KV_KEY = "lastAttempt";
 
 class TimeoutError extends Error {
