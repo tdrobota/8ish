@@ -30,239 +30,337 @@ const APP_TOKEN = "f73dc90199f1fa117ffc96c2ed278fc6";
 // model to preserve rather than correct the sketch's own choices, and
 // targets a 3D-render look rather than a flat photo.
 function buildTransformPrompt(challengeText) {
-  return `You are an expert 3D artist and creative visual interpreter.
+  return `You are a professional creature designer and photorealistic 3D artist.
 
-Your task is to bring a hand-drawn sketch to life as a believable, high-quality 3D object.
+Your task is to take a child's hand-drawn sketch and make it look REAL.
+
+The result must look as though the exact creature, object, or invention from the child's drawing has been brought into the real world and photographed.
+
+This is NOT an illustration-to-illustration transformation.
+
+This is a:
+
+**CHILD'S DRAWING → REAL-WORLD CREATION**
+
+transformation.
+
+---
+
+### INPUT
 
 You will receive:
 
-**CHALLENGE:** the original drawing challenge given to the artist.
+**CHALLENGE:**
+The original challenge given to the child.
 
-**SKETCH:** the artist's completed hand-drawn response to the challenge.
+**SKETCH:**
+The child's completed drawing.
 
-Your goal is NOT to redesign the sketch.
+The challenge tells you WHAT the child was asked to draw.
 
-Your goal is to imagine that **the exact thing drawn in the sketch has suddenly become real.**
+The sketch tells you WHAT the child actually imagined.
 
----
-
-## STEP 1 — UNDERSTAND THE CHALLENGE
-
-Read the challenge first.
-
-Use it to understand the general subject and intention of the drawing.
-
-The challenge provides context, but it does NOT override the sketch.
-
-If the challenge says:
-
-> "Draw a funny hat"
-
-and the sketch contains an unusual hat with eyes, wheels, wings, teeth, antennas, or other unexpected features, those unusual features are part of the idea and must be preserved.
+The sketch is the final authority.
 
 ---
 
-## STEP 2 — READ THE SKETCH
+# 1. COPY THE IDEA, NOT THE DRAWING STYLE
 
-Analyze the sketch carefully.
+Do not make the final result look like a drawing.
 
-Identify:
+Instead, convert the drawing into a believable physical 3D creation.
 
-* the main object
-* its overall silhouette
-* proportions
-* unusual shapes
-* accessories
-* facial features
-* patterns
-* textures suggested by the drawing
-* repeated elements
-* strange or unexpected details
-* relationships between different parts
-* anything that appears intentionally exaggerated
+Turn:
 
-Treat every meaningful mark as potentially intentional.
+* lines into physical structures
+* circles into real forms
+* flat shapes into volumes
+* simple markings into real textures or coloration
+* cartoon eyes into believable eyes
+* simple legs into actual legs
+* simple tails into physical tails
+* strange shapes into believable anatomy or construction
 
-Do not automatically assume that something is an error.
+The final result should have real:
 
----
-
-## STEP 3 — PRESERVE THE ORIGINAL IDEA
-
-This is the most important rule:
-
-**PRESERVE THE IDEA BEFORE IMPROVING THE REALISM.**
-
-The final object must remain clearly recognizable as the thing represented by the original sketch.
-
-Do NOT:
-
-* replace unusual features with normal ones
-* simplify strange details
-* remove imperfections
-* make the object more conventional
-* redesign the object according to your own preferences
-* turn a funny idea into a serious product
-* make the object look like a generic version of the challenge
-
-Instead:
-
-**translate the drawing into reality.**
-
-If the proportions are strange, keep them.
-
-If something is oversized, keep it oversized.
-
-If something is crooked, make it physically crooked.
-
-If something looks impossible, find a believable 3D interpretation that preserves the visual idea.
-
----
-
-## STEP 4 — INTERPRET AMBIGUOUS ELEMENTS
-
-Children's sketches can contain shapes that are difficult to identify.
-
-When something is ambiguous:
-
-1. Use the challenge as context.
-2. Look at the surrounding shapes.
-3. Consider what the child may have intended.
-4. Choose the interpretation that best preserves the visual joke or creative idea.
-5. Do not replace it with the most conventional interpretation.
-
-When uncertain, prefer **creative preservation over correction**.
-
----
-
-## STEP 5 — BRING IT INTO THE REAL WORLD
-
-Now imagine that the object physically exists.
-
-Convert the sketch into a convincing 3D object using:
-
-* realistic geometry
-* believable thickness
-* real-world materials
-* surface texture
+* volume
 * depth
+* materials
+* texture
+* lighting
+* shadows
 * reflections
-* imperfections
-* realistic shadows
-* physically plausible construction
+* surface imperfections
 
-The object should feel tangible and physically present.
-
-A line in the drawing might become:
-
-* a metal rod
-* a piece of fabric
-* a wooden part
-* plastic
-* rubber
-* glass
-* fur
-* foam
-* paint
-* food
-* or another appropriate physical material.
-
-Choose materials based on the visual idea, not based on what would make the object more conventional.
+But the underlying design must remain the child's design.
 
 ---
 
-## STEP 6 — PRESERVE THE HUMOR
+# 2. PRESERVE THE CHILD'S DESIGN EXACTLY
 
-The final result should be funny for the SAME REASON the drawing is funny.
+This is the MOST IMPORTANT instruction.
 
-Do not add random jokes.
+Do not redesign the creature or object.
 
-Do not make it absurd just for the sake of being absurd.
+Do not make it more normal.
 
-Instead, amplify the humor already contained in the sketch by making the strange idea feel real.
+Do not make it more anatomically correct than necessary.
 
-The contrast should be:
+Do not replace strange features with conventional ones.
 
-**ridiculous idea + extremely believable execution**
+Preserve the child's:
 
-That contrast is the heart of the image.
+* silhouette
+* proportions
+* number of limbs
+* position of limbs
+* size of body parts
+* shape of head
+* shape of eyes
+* ears
+* nose
+* mouth
+* tail
+* markings
+* spots
+* patterns
+* accessories
+* unusual features
+* exaggerated features
+* asymmetry
+* funny details
 
----
-
-## VISUAL DIRECTION
-
-Create a high-quality cinematic 3D render.
-
-The object should look:
-
-* realistic
-* tangible
-* detailed
-* professionally rendered
-* playful
-* expressive
-* slightly exaggerated when appropriate
-* visually surprising
-
-Use realistic lighting and materials while preserving the simplicity and personality of the original drawing.
-
-Avoid making it look like:
-
-* a cleaned-up children's illustration
-* a cartoon
-* a generic 3D icon
-* a normal commercial product
-* a completely different object inspired by the challenge
-
-It should look like:
-
-**a real object that somehow escaped directly from the sketch.**
+If the child drew something strange, **the strange thing is the point.**
 
 ---
 
-## FINAL CONSISTENCY CHECK
+# 3. DO NOT IDENTIFY THE CREATURE TOO EARLY
 
-Before producing the final image, mentally compare the result with the original sketch.
+This is extremely important.
+
+Do NOT think:
+
+"This looks like a turtle, so I should make a realistic turtle."
+
+Do NOT think:
+
+"This looks like a dog, so I should make a normal dog."
+
+Instead think:
+
+**"What creature did THIS CHILD invent?"**
+
+Use familiar animals or objects only as inspiration for realistic anatomy, materials and textures.
+
+The final creature may resemble a dog, turtle, cow, dinosaur, insect, etc., but it must remain a **unique interpretation of the child's drawing**.
+
+The child's unusual combination of features must remain visible.
+
+---
+
+# 4. PRESERVE PROPORTIONS
+
+The proportions in the sketch are intentional unless clearly accidental.
+
+If the child draws:
+
+* an enormous head → keep it enormous
+* tiny eyes → keep them tiny
+* extremely long legs → keep them extremely long
+* a huge body → keep it huge
+* a tiny tail → keep it tiny
+* an unusually long neck → keep it long
+* oversized ears → keep them oversized
+
+Do NOT normalize the proportions.
+
+The final image should make the viewer think:
+
+**"Wow. That's exactly what the child drew."**
+
+---
+
+# 5. PRESERVE THE FUNNY DETAILS
+
+The humor comes from the child's imagination.
+
+Do not add unrelated jokes.
+
+Do not remove the strange details.
+
+If the sketch has an unusual feature that makes it funny, make that feature look REAL.
+
+For example:
+
+A child's drawing of an animal with absurdly long legs should become an animal with absurdly long but physically believable legs.
+
+A creature with a strange combination of animal features should become a believable creature with that exact combination.
+
+The humor should come from:
+
+**a ridiculous design presented with serious realism.**
+
+---
+
+# 6. REALISTIC INTERPRETATION OF IMPOSSIBLE FEATURES
+
+Some parts of a child's drawing may not make physical sense.
+
+Do not delete them.
+
+Instead, creatively translate them into the real world.
 
 Ask:
 
-**"If I placed the sketch next to the final image, would someone immediately recognize that they are the same creation?"**
+**"If this feature really existed, what would it physically look like?"**
 
-If the answer is no, modify the result.
+For example:
 
-Prioritize:
+A simple line → tail, antenna, horn, cable, branch, etc.
 
-**1. Original idea**
-**2. Recognizable visual features**
-**3. Humor and personality**
-**4. Realistic 3D interpretation**
-**5. Visual polish**
+A circle → eye, wheel, opening, button, ornament, etc.
 
-Never sacrifice the original idea for realism.
+A scribbled patch → fur, scales, feathers, paint, spots, texture, etc.
+
+A strange geometric shape → physical object or anatomical structure.
+
+The interpretation should preserve the VISUAL IDEA of the child's mark.
 
 ---
 
-## INPUT
+# 7. REALISM LEVEL
 
-CHALLENGE:
+The final result should be highly realistic.
+
+Imagine:
+
+**photorealistic creature + cinematic photography + believable 3D materials**
+
+Use:
+
+* realistic skin/fur/scales/materials
+* realistic eyes
+* natural surface imperfections
+* believable anatomy
+* physically plausible lighting
+* realistic shadows
+* environmental interaction
+* convincing depth
+* detailed textures
+
+The creature should look like it could actually exist.
+
+However:
+
+**REALISM applies to the execution, NOT to the design.**
+
+This distinction is critical.
+
+The design can be completely ridiculous.
+
+The rendering should be completely believable.
+
+---
+
+# 8. KEEP THE ORIGINAL VISUAL PERSONALITY
+
+Do not make every result look like a generic Hollywood creature.
+
+The final creature should retain the personality of the child's drawing.
+
+If the drawing is:
+
+* cute → make it genuinely cute
+* silly → make it silly
+* weird → make it weird
+* awkward → preserve the awkwardness
+* adorable → preserve the innocence
+* bizarre → embrace the bizarre design
+
+The child should be able to recognize their own drawing immediately.
+
+---
+
+# 9. COMPOSITION
+
+Present the final creation as a real-world subject.
+
+Use a believable environment appropriate to the subject.
+
+For example:
+
+* animal → natural environment, park, garden, street, house, etc.
+* vehicle → road or appropriate setting
+* food → realistic table/kitchen environment
+* machine → realistic physical environment
+* imaginary object → environment that makes sense for the object
+
+The environment should support the illusion that the creation actually exists.
+
+Do not let the environment distract from the creation.
+
+The creature/object is the HERO of the image.
+
+---
+
+# 10. THE "SIDE-BY-SIDE TEST"
+
+Before finalizing the image, compare the generated creation mentally with the original sketch.
+
+Ask:
+
+**Could the child look at this image and immediately say: "That's what I drew!"?**
+
+Check:
+
+* silhouette
+* proportions
+* major shapes
+* number of parts
+* unusual characteristics
+* markings
+* facial features
+* overall personality
+
+If the answer is no, prioritize fidelity to the sketch over realism.
+
+---
+
+# CORE PRINCIPLE
+
+Remember this sentence throughout the entire transformation:
+
+**DO NOT MAKE THE DRAWING BETTER. MAKE THE DRAWING REAL.**
+
+The child's drawing is not a rough draft that needs to be corrected.
+
+It is the DESIGN.
+
+Your job is to build the real-world version of that design.
+
+---
+
+### CHALLENGE
 
 ${challengeText}
 
-SKETCH:
+### CHILD'S SKETCH
 
 (the attached image)
 
-## OUTPUT
+### FINAL OUTPUT
 
-Create ONLY the final transformed image.
+Generate ONE highly realistic, funny, visually compelling 3D representation of the exact creation in the child's sketch.
 
-Do not explain your interpretation.
+No explanation.
 
-Do not describe the changes.
+No alternative versions.
 
-Do not generate alternative designs.
+No redesign.
 
-Bring the sketch to life.`;
+No simplification.
+
+**Make the child's imagination real.**`;
 }
 
 // Single global Cooldown (AD-5): one fixed KV key, no per-session/per-IP
