@@ -251,6 +251,7 @@
       <button id="startChallengesBtn" class="btn-start btn-mode btn-mode-alt" type="button">Provocări</button>
       <button id="startGamesBtn" class="btn-start btn-mode btn-mode-games" type="button">Jocuri</button>
       <button id="startDrawBtn" class="btn-start btn-mode btn-mode-draw" type="button">Desenează</button>
+      <button id="startSingBtn" class="btn-start btn-mode btn-mode-sing" type="button">Cântă</button>
     </div>
     <p class="hint">Atinge ecranul pentru următoarea. Atinge Gata când termini.</p>
   </main>
@@ -350,12 +351,55 @@
     </div>
   </div>
 
+  <!-- Sing theme picker -->
+  <div id="singTheme" class="screen sing-picker-screen" hidden>
+    <button id="singThemeBackBtn" class="btn-end btn-back" type="button">‹ Înapoi</button>
+    <div class="sing-scroll">
+      <p class="sing-title">Despre ce e cântecul?</p>
+      <div id="singThemeGrid" class="sing-grid"></div>
+    </div>
+  </div>
+
+  <!-- Sing style picker -->
+  <div id="singStyle" class="screen sing-picker-screen" hidden>
+    <button id="singStyleBackBtn" class="btn-end btn-back" type="button">‹ Înapoi</button>
+    <div class="sing-scroll">
+      <p class="sing-title">Ce stil de muzică?</p>
+      <div id="singStyleGrid" class="sing-grid"></div>
+    </div>
+  </div>
+
+  <!-- Sing result screen -->
+  <div id="singResult" class="screen draw-result-screen" hidden>
+    <button id="singResultEndBtn" class="btn-end" type="button" aria-label="Încheie">Gata</button>
+
+    <div id="singWaiting" class="draw-result-waiting">
+      <div class="draw-spinner" aria-hidden="true"></div>
+      <p class="draw-result-message">Se scrie cântecul tău…</p>
+    </div>
+
+    <div id="singSuccess" class="draw-result-success" hidden>
+      <p id="singLyrics" class="sing-lyrics" aria-live="polite"></p>
+      <p class="sing-coming-soon">🎵 Cântecul e gata, muzica vine în curând!</p>
+      <div class="draw-result-actions">
+        <button id="singNewBtn" class="btn-start btn-mode btn-mode-sing" type="button">Cântec nou</button>
+      </div>
+    </div>
+
+    <div id="singError" class="draw-result-error" hidden>
+      <p id="singErrorMessage" class="draw-result-message" aria-live="polite"></p>
+      <button id="singRetryBtn" class="btn-start btn-mode draw-retry-btn" type="button">Mai încearcă!</button>
+    </div>
+  </div>
+
   <script src="questions.js"></script>
   <script src="challenges.js"></script>
   <script src="games.js"></script>
   <script src="ui.js"></script>
   <script src="prompts.js"></script>
   <script src="draw.js"></script>
+  <script src="sing.js"></script>
+  <script src="sing-flow.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

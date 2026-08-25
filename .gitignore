@@ -2,3 +2,5 @@ _bmad/
 _bmad-output/
 .claude/
 .wrangler/
+.dev.vars
+.vs/

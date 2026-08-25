@@ -6,6 +6,7 @@
 // assets binding before this fetch handler ever runs (assets-first
 // routing), so only `/api/transform` needs to be wired here.
 import { onRequestPost as transformPost } from "./functions/api/transform.js";
+import { onRequestPost as songPost } from "./functions/api/song.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -16,6 +17,13 @@ export default {
         return new Response("Method not allowed", { status: 405 });
       }
       return transformPost({ request, env, ctx });
+    }
+
+    if (url.pathname === "/api/song") {
+      if (request.method !== "POST") {
+        return new Response("Method not allowed", { status: 405 });
+      }
+      return songPost({ request, env, ctx });
     }
 
     return new Response("Not found", { status: 404 });
