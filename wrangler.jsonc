@@ -16,5 +16,47 @@
       "binding": "COOLDOWN_KV",
       "id": "54b762d32d854a9bba9604472c4dc93e"
     }
-  ]
+  ],
+  // Default deploy target (`npx wrangler deploy`, no --env): the kid's own
+  // link. Always unlimited — /api/config reports planMode "unlimited" here,
+  // which makes the free counter, Parent Gate and paywall never render (see
+  // monetize.js). Never set STRIPE_* secrets on this environment.
+  "vars": {
+    "PLAN_MODE": "unlimited"
+  },
+  // Monetized public deploy (`npx wrangler deploy --env plus`): same code,
+  // separate Worker/link, own env vars below plus Stripe secrets set via
+  // `npx wrangler secret put STRIPE_SECRET_KEY --env plus`.
+  "env": {
+    "plus": {
+      "name": "8ish-plus",
+      "main": "worker.js",
+      "assets": {
+        "directory": "."
+      },
+      "ai": {
+        "binding": "AI"
+      },
+      "kv_namespaces": [
+        {
+          "binding": "COOLDOWN_KV",
+          "id": "54b762d32d854a9bba9604472c4dc93e"
+        }
+      ],
+      "vars": {
+        "PLAN_MODE": "free",
+        "FREE_DAILY_LIMIT": "10",
+        "FREE_AI_LIMIT": "1",
+        "FEATURE_FRIEND_MODE": "false",
+        "FEATURE_FAMILY_MODE": "false",
+        "PRICE_MONTHLY_RON": "19.99",
+        "PRICE_YEARLY_RON": "149",
+        "PRICE_CURRENCY": "RON",
+        // Stripe Price IDs (price_...), not secret, but real values must be
+        // filled in before checkout will work — see README "Go-live checklist".
+        "STRIPE_PRICE_MONTHLY": "REPLACE_WITH_STRIPE_PRICE_ID_MONTHLY",
+        "STRIPE_PRICE_YEARLY": "REPLACE_WITH_STRIPE_PRICE_ID_YEARLY"
+      }
+    }
+  }
 }

@@ -251,9 +251,9 @@
       <button id="startChallengesBtn" class="btn-start btn-mode btn-mode-alt" type="button">Provocări</button>
       <button id="startGamesBtn" class="btn-start btn-mode btn-mode-games" type="button">Jocuri</button>
       <button id="startDrawBtn" class="btn-start btn-mode btn-mode-draw" type="button">Desenează</button>
-      <button id="startSingBtn" class="btn-start btn-mode btn-mode-sing" type="button">Cântă</button>
     </div>
     <p class="hint">Atinge ecranul pentru următoarea. Atinge Gata când termini.</p>
+    <button id="freeCounter" class="free-counter" type="button" hidden></button>
   </main>
 
   <!-- Games list screen -->
@@ -351,45 +351,44 @@
     </div>
   </div>
 
-  <!-- Sing theme picker -->
-  <div id="singTheme" class="screen sing-picker-screen" hidden>
-    <button id="singThemeBackBtn" class="btn-end btn-back" type="button">‹ Înapoi</button>
-    <div class="sing-scroll">
-      <p class="sing-title">Despre ce e cântecul?</p>
-      <div id="singThemeGrid" class="sing-grid"></div>
+  <!-- Free daily limit reached (monetized deploy only — see /api/config) -->
+  <div id="dailyLimit" class="screen info-screen" hidden>
+    <p class="eyebrow">Gata pentru azi!</p>
+    <p class="info-text">Ai terminat cele <span id="dailyLimitCount"></span> activități gratuite de azi.</p>
+    <p class="info-subtext">Revino mâine pentru încă activități sau roagă un părinte să deblocheze 8ish+.</p>
+    <div class="info-actions">
+      <button id="dailyLimitTomorrowBtn" class="btn-start btn-mode" type="button">Revin mâine</button>
+      <button id="dailyLimitParentBtn" class="btn-start btn-mode btn-mode-alt" type="button">Pentru părinți</button>
     </div>
   </div>
 
-  <!-- Sing style picker -->
-  <div id="singStyle" class="screen sing-picker-screen" hidden>
-    <button id="singStyleBackBtn" class="btn-end btn-back" type="button">‹ Înapoi</button>
-    <div class="sing-scroll">
-      <p class="sing-title">Ce stil de muzică?</p>
-      <div id="singStyleGrid" class="sing-grid"></div>
-    </div>
+  <!-- Parent Gate: a friction screen, not authentication — keeps young kids
+       from reaching the paywall by accident. Only ever stands between a tap
+       and a parent-facing screen (paywall today); never shown on the kid's
+       own unlimited deploy. -->
+  <div id="parentGate" class="screen info-screen" hidden>
+    <button id="parentGateBackBtn" class="btn-end btn-back" type="button">‹ Înapoi</button>
+    <p class="eyebrow">Pentru părinți</p>
+    <p id="parentGateQuestion" class="gate-question" aria-live="polite"></p>
+    <input id="parentGateInput" class="gate-input" type="number" inputmode="numeric" autocomplete="off" aria-label="Răspuns" />
+    <p id="parentGateError" class="gate-error" hidden>Nu e corect, mai încearcă.</p>
+    <button id="parentGateSubmit" class="btn-start btn-mode" type="button">Continuă</button>
   </div>
 
-  <!-- Sing result screen -->
-  <div id="singResult" class="screen draw-result-screen" hidden>
-    <button id="singResultEndBtn" class="btn-end" type="button" aria-label="Încheie">Gata</button>
-
-    <div id="singWaiting" class="draw-result-waiting">
-      <div class="draw-spinner" aria-hidden="true"></div>
-      <p class="draw-result-message">Se scrie cântecul tău…</p>
+  <!-- 8ish+ paywall -->
+  <div id="paywall" class="screen info-screen" hidden>
+    <button id="paywallBackBtn" class="btn-end btn-back" type="button">‹ Înapoi</button>
+    <p class="eyebrow">8ish+</p>
+    <p class="info-text">Activități nelimitate</p>
+    <div class="paywall-plans">
+      <button id="paywallMonthlyBtn" class="btn-start btn-mode paywall-plan" type="button">
+        Lunar<br /><span id="paywallMonthlyPrice" class="paywall-price"></span>
+      </button>
+      <button id="paywallYearlyBtn" class="btn-start btn-mode btn-mode-alt paywall-plan" type="button">
+        Anual<br /><span id="paywallYearlyPrice" class="paywall-price"></span>
+      </button>
     </div>
-
-    <div id="singSuccess" class="draw-result-success" hidden>
-      <p id="singLyrics" class="sing-lyrics" aria-live="polite"></p>
-      <p class="sing-coming-soon">🎵 Cântecul e gata, muzica vine în curând!</p>
-      <div class="draw-result-actions">
-        <button id="singNewBtn" class="btn-start btn-mode btn-mode-sing" type="button">Cântec nou</button>
-      </div>
-    </div>
-
-    <div id="singError" class="draw-result-error" hidden>
-      <p id="singErrorMessage" class="draw-result-message" aria-live="polite"></p>
-      <button id="singRetryBtn" class="btn-start btn-mode draw-retry-btn" type="button">Mai încearcă!</button>
-    </div>
+    <p id="paywallStatus" class="info-subtext" hidden></p>
   </div>
 
   <script src="questions.js"></script>
@@ -398,8 +397,7 @@
   <script src="ui.js"></script>
   <script src="prompts.js"></script>
   <script src="draw.js"></script>
-  <script src="sing.js"></script>
-  <script src="sing-flow.js"></script>
   <script src="app.js"></script>
+  <script src="monetize.js"></script>
 </body>
 </html>

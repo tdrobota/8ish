@@ -866,3 +866,109 @@ body {
   color: var(--ink);
   opacity: 0.7;
 }
+
+/* ---------- Free counter (start screen, monetized deploy only) ---------- */
+
+.free-counter {
+  appearance: none;
+  margin: 0;
+  border: none;
+  background: transparent;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.9rem, 2vw, 1.05rem);
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 0.4em 0.8em;
+}
+
+/* ---------- Daily limit / Parent Gate / Paywall ---------- */
+
+.info-screen {
+  background: var(--paper);
+  padding: max(2rem, env(safe-area-inset-top)) max(2rem, env(safe-area-inset-right))
+    max(2rem, env(safe-area-inset-bottom)) max(2rem, env(safe-area-inset-left));
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.info-text {
+  margin: 0;
+  max-width: 26ch;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(1.4rem, 4.5vw, 2.1rem);
+  color: var(--ink);
+}
+
+.info-subtext {
+  margin: 0;
+  max-width: 34ch;
+  font-weight: 700;
+  font-size: clamp(1rem, 2.4vw, 1.2rem);
+  color: var(--ink);
+  opacity: 0.7;
+}
+
+.info-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.info-actions .btn-mode,
+.paywall-plan {
+  font-size: clamp(1.2rem, 3.4vw, 1.6rem);
+  padding: 0.55em 1.1em;
+}
+
+.gate-question {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 7vw, 3.2rem);
+  color: var(--ink);
+}
+
+.gate-input {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  text-align: center;
+  width: 6rem;
+  color: var(--ink);
+  background: var(--paper-chip);
+  border: 4px solid var(--ink);
+  border-radius: 1rem;
+  padding: 0.4em;
+}
+
+.gate-error {
+  margin: 0;
+  font-weight: 700;
+  color: var(--card-1);
+  -webkit-text-stroke: 0.6px var(--ink);
+}
+
+.paywall-plans {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.paywall-plan {
+  line-height: 1.3;
+}
+
+.paywall-price {
+  display: inline-block;
+  margin-top: 0.2em;
+  font-size: 0.55em;
+  text-transform: none;
+  letter-spacing: 0;
+}

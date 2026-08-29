@@ -53,6 +53,10 @@
       card.appendChild(badge);
       card.appendChild(name);
       card.addEventListener("click", () => {
+        if (window.LIMIT && !window.LIMIT.tryConsume()) {
+          window.LIMIT.showDailyLimit();
+          return;
+        }
         renderGameDetail(game, index);
         QCUI.showScreen("gameDetail");
       });
@@ -155,7 +159,10 @@
     }
   }
 
-  function showNextQuestion() {
+  // Pure render — never call directly from a UI handler; callers must gate
+  // through window.LIMIT.tryConsume() first (see startSession/handleTap)
+  // so each reveal counts against the free daily limit exactly once.
+  function renderQuestion() {
     ring.reset();
 
     const bank = currentBank();
@@ -186,6 +193,11 @@
   }
 
   function startSession(selectedMode) {
+    if (window.LIMIT && !window.LIMIT.tryConsume()) {
+      window.LIMIT.showDailyLimit();
+      return;
+    }
+
     mode = selectedMode;
     pool = [];
     cardIndex = 0;
@@ -194,7 +206,7 @@
     QCUI.showScreen("stage");
     tapHint.classList.remove("hidden");
 
-    showNextQuestion();
+    renderQuestion();
   }
 
   function endSession() {
@@ -214,7 +226,11 @@
 
   function handleTap() {
     dismissHint();
-    showNextQuestion();
+    if (window.LIMIT && !window.LIMIT.tryConsume()) {
+      window.LIMIT.showDailyLimit();
+      return;
+    }
+    renderQuestion();
   }
 
   startQuestionsBtn.addEventListener("click", () => startSession("questions"));

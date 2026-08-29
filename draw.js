@@ -59,6 +59,7 @@
     cooldown: "Așteaptă puțin și mai încearcă o dată!",
     provider_error: "Hopa! Ceva nu a mers bine. Mai încearcă!",
     offline: "Ai nevoie de internet ca desenul tău să prindă viață. Încearcă din nou!",
+    ai_limit: "Ai folosit desenul AI gratuit de azi. Roagă un părinte să deblocheze 8ish+ pentru mai multe!",
   };
 
   // In-memory only (mirrors app.js's session state: nothing here is ever persisted).
@@ -357,6 +358,11 @@
       console.error("QCDraw: submitTransform called with no captured sketch");
       return;
     }
+    if (window.LIMIT && !window.LIMIT.tryConsumeAi()) {
+      QCUI.showScreen("drawResult");
+      finishFailure("ai_limit");
+      return;
+    }
     inFlight = true;
     drawRetryBtn.disabled = true;
     const token = requestToken;
@@ -407,6 +413,11 @@
   // --- Screen flow -------------------------------------------------------
 
   function enterDrawPrompt() {
+    if (window.LIMIT && !window.LIMIT.tryConsume()) {
+      window.LIMIT.showDailyLimit();
+      return;
+    }
+
     // Abandon any in-flight/previous transform flow when starting fresh —
     // matches "no continuous draw loop" resolution (Story 1.2 deferred finding).
     requestToken += 1;
