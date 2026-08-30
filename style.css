@@ -774,6 +774,13 @@ body {
 
 /* ---------- Free counter (start screen, monetized deploy only) ---------- */
 
+.parent-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .free-counter {
   appearance: none;
   margin: 0;

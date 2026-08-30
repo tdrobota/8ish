@@ -25,6 +25,7 @@
   };
 
   const freeCounter = document.getElementById("freeCounter");
+  const parentModeBtn = document.getElementById("parentModeBtn");
   const dailyLimitScreen = document.getElementById("dailyLimit");
   const parentGateScreen = document.getElementById("parentGate");
   const paywallScreen = document.getElementById("paywall");
@@ -32,7 +33,7 @@
 
   // Defensive: if index.html and this file ever drift apart, don't throw on
   // load and take the whole script (and window.LIMIT) down with it.
-  if (!freeCounter || !dailyLimitScreen || !parentGateScreen || !paywallScreen || !restoreScreen) {
+  if (!freeCounter || !parentModeBtn || !dailyLimitScreen || !parentGateScreen || !paywallScreen || !restoreScreen) {
     console.error("monetize.js: expected DOM not found, monetization disabled");
     return;
   }
@@ -120,6 +121,7 @@
   // --- free counter --------------------------------------------------------
 
   function updateFreeCounter() {
+    parentModeBtn.hidden = config.planMode === "unlimited";
     if (config.planMode === "unlimited") {
       freeCounter.hidden = true;
       return;
@@ -356,6 +358,7 @@
   freeCounter.addEventListener("click", () => {
     if (config.planMode !== "unlimited" && !isEntitled()) openParentGate();
   });
+  parentModeBtn.addEventListener("click", openParentGate);
 
   window.LIMIT = { tryConsume, tryConsumeAi, showDailyLimit };
 
