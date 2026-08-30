@@ -10,6 +10,7 @@ import { onRequestGet as configGet } from "./functions/api/config.js";
 import { onRequestPost as checkoutPost } from "./functions/api/checkout.js";
 import { onRequestGet as checkoutConfirmGet } from "./functions/api/checkout-confirm.js";
 import { onRequestGet as entitlementGet } from "./functions/api/entitlement.js";
+import { onRequestPost as restorePost } from "./functions/api/restore.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -48,6 +49,13 @@ export default {
         return new Response("Method not allowed", { status: 405 });
       }
       return entitlementGet({ request, env, ctx });
+    }
+
+    if (url.pathname === "/api/restore") {
+      if (request.method !== "POST") {
+        return new Response("Method not allowed", { status: 405 });
+      }
+      return restorePost({ request, env, ctx });
     }
 
     return new Response("Not found", { status: 404 });

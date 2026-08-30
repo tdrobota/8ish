@@ -28,10 +28,11 @@
   const dailyLimitScreen = document.getElementById("dailyLimit");
   const parentGateScreen = document.getElementById("parentGate");
   const paywallScreen = document.getElementById("paywall");
+  const restoreScreen = document.getElementById("restore");
 
   // Defensive: if index.html and this file ever drift apart, don't throw on
   // load and take the whole script (and window.LIMIT) down with it.
-  if (!freeCounter || !dailyLimitScreen || !parentGateScreen || !paywallScreen) {
+  if (!freeCounter || !dailyLimitScreen || !parentGateScreen || !paywallScreen || !restoreScreen) {
     console.error("monetize.js: expected DOM not found, monetization disabled");
     return;
   }
@@ -39,6 +40,7 @@
   QCUI.registerScreen("dailyLimit", dailyLimitScreen);
   QCUI.registerScreen("parentGate", parentGateScreen);
   QCUI.registerScreen("paywall", paywallScreen);
+  QCUI.registerScreen("restore", restoreScreen);
 
   const dailyLimitCount = document.getElementById("dailyLimitCount");
   const dailyLimitParentBtn = document.getElementById("dailyLimitParentBtn");
@@ -54,6 +56,12 @@
   const paywallMonthlyPrice = document.getElementById("paywallMonthlyPrice");
   const paywallYearlyPrice = document.getElementById("paywallYearlyPrice");
   const paywallStatus = document.getElementById("paywallStatus");
+  const paywallRestoreBtn = document.getElementById("paywallRestoreBtn");
+  const restoreBackBtn = document.getElementById("restoreBackBtn");
+  const restoreEmailInput = document.getElementById("restoreEmailInput");
+  const restoreSubmitBtn = document.getElementById("restoreSubmitBtn");
+  const restoreError = document.getElementById("restoreError");
+  const restoreStatus = document.getElementById("restoreStatus");
 
   // --- local usage/entitlement storage ------------------------------------
   // Client-side only, same trust model as everything else in this app right
@@ -212,6 +220,58 @@
     }
   }
 
+  // --- restore purchase by email --------------------------------------------
+  // No accounts in this app, so entitlement lives in localStorage on one
+  // device. This recovers it elsewhere (second device, cleared storage,
+  // private browsing) via the email Stripe Checkout already collected,
+  // instead of building a real login system for a hobby-scale product.
+
+  function openRestore() {
+    restoreError.hidden = true;
+    restoreStatus.hidden = true;
+    restoreEmailInput.value = "";
+    restoreSubmitBtn.disabled = false;
+    QCUI.showScreen("restore");
+    restoreEmailInput.focus();
+  }
+
+  async function submitRestore() {
+    const email = restoreEmailInput.value.trim();
+    if (!email) return;
+    restoreError.hidden = true;
+    restoreStatus.hidden = false;
+    restoreStatus.textContent = "Un moment...";
+    restoreSubmitBtn.disabled = true;
+    try {
+      const res = await fetch("/api/restore", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error("restore_failed");
+      const data = await res.json();
+      if (data && data.active) {
+        writeEntitlement({
+          active: true,
+          subscriptionId: data.subscriptionId,
+          plan: data.plan,
+          checkedAt: Date.now(),
+        });
+        updateFreeCounter();
+        restoreStatus.hidden = true;
+        QCUI.showScreen("start");
+      } else {
+        restoreStatus.hidden = true;
+        restoreError.hidden = false;
+        restoreSubmitBtn.disabled = false;
+      }
+    } catch (e) {
+      restoreStatus.hidden = true;
+      restoreError.hidden = false;
+      restoreSubmitBtn.disabled = false;
+    }
+  }
+
   // --- boot: config, return-from-checkout confirm, entitlement recheck -----
 
   async function loadConfig() {
@@ -287,6 +347,12 @@
   paywallBackBtn.addEventListener("click", () => QCUI.showScreen("start"));
   paywallMonthlyBtn.addEventListener("click", () => startCheckout("monthly"));
   paywallYearlyBtn.addEventListener("click", () => startCheckout("yearly"));
+  paywallRestoreBtn.addEventListener("click", openRestore);
+  restoreBackBtn.addEventListener("click", () => QCUI.showScreen("paywall"));
+  restoreSubmitBtn.addEventListener("click", submitRestore);
+  restoreEmailInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitRestore();
+  });
   freeCounter.addEventListener("click", () => {
     if (config.planMode !== "unlimited" && !isEntitled()) openParentGate();
   });

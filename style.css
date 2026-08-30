@@ -859,6 +859,27 @@ body {
   -webkit-text-stroke: 0.6px var(--ink);
 }
 
+.restore-input {
+  width: min(20rem, 80vw);
+  text-align: left;
+  font-size: 1.2rem;
+}
+
+.text-link-btn {
+  appearance: none;
+  margin: 0;
+  border: none;
+  background: transparent;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.9rem, 2vw, 1.05rem);
+  text-decoration: underline;
+  color: var(--ink);
+  opacity: 0.7;
+  cursor: pointer;
+  padding: 0.4em 0.8em;
+}
+
 .paywall-plans {
   display: flex;
   flex-wrap: wrap;

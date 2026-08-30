@@ -389,6 +389,26 @@
       </button>
     </div>
     <p id="paywallStatus" class="info-subtext" hidden></p>
+    <button id="paywallRestoreBtn" class="text-link-btn" type="button">Am deja abonament</button>
+  </div>
+
+  <!-- Restore purchase by email (see functions/api/restore.js) -->
+  <div id="restore" class="screen info-screen" hidden>
+    <button id="restoreBackBtn" class="btn-end btn-back" type="button">‹ Înapoi</button>
+    <p class="eyebrow">Recuperează 8ish+</p>
+    <p class="info-text">Introdu emailul folosit la abonare</p>
+    <input
+      id="restoreEmailInput"
+      class="gate-input restore-input"
+      type="email"
+      inputmode="email"
+      autocomplete="email"
+      aria-label="Email"
+      placeholder="email@exemplu.com"
+    />
+    <p id="restoreError" class="gate-error" hidden>Nu am găsit un abonament activ pentru acest email.</p>
+    <button id="restoreSubmitBtn" class="btn-start btn-mode" type="button">Recuperează</button>
+    <p id="restoreStatus" class="info-subtext" hidden></p>
   </div>
 
   <script src="questions.js"></script>
