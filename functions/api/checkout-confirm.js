@@ -49,12 +49,14 @@ export async function onRequestGet({ request, env }) {
     subscription &&
     (subscription.status === "active" || subscription.status === "trialing");
 
+  const item = subscription && subscription.items && subscription.items.data[0];
+
   return jsonResponse(200, {
     active: !!active,
     subscriptionId: subscription ? subscription.id : null,
-    plan:
-      subscription && subscription.items && subscription.items.data[0]
-        ? subscription.items.data[0].price.id
-        : null,
+    plan: item ? item.price.id : null,
+    // Stripe API 2025-03-31 ("Basil") moved current_period_end off the
+    // subscription object onto each subscription item.
+    currentPeriodEnd: item ? item.current_period_end : null,
   });
 }

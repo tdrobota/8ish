@@ -30,10 +30,19 @@
   const parentGateScreen = document.getElementById("parentGate");
   const paywallScreen = document.getElementById("paywall");
   const restoreScreen = document.getElementById("restore");
+  const subscriptionInfoScreen = document.getElementById("subscriptionInfo");
 
   // Defensive: if index.html and this file ever drift apart, don't throw on
   // load and take the whole script (and window.LIMIT) down with it.
-  if (!freeCounter || !parentModeBtn || !dailyLimitScreen || !parentGateScreen || !paywallScreen || !restoreScreen) {
+  if (
+    !freeCounter ||
+    !parentModeBtn ||
+    !dailyLimitScreen ||
+    !parentGateScreen ||
+    !paywallScreen ||
+    !restoreScreen ||
+    !subscriptionInfoScreen
+  ) {
     console.error("monetize.js: expected DOM not found, monetization disabled");
     return;
   }
@@ -42,6 +51,7 @@
   QCUI.registerScreen("parentGate", parentGateScreen);
   QCUI.registerScreen("paywall", paywallScreen);
   QCUI.registerScreen("restore", restoreScreen);
+  QCUI.registerScreen("subscriptionInfo", subscriptionInfoScreen);
 
   const dailyLimitCount = document.getElementById("dailyLimitCount");
   const dailyLimitParentBtn = document.getElementById("dailyLimitParentBtn");
@@ -63,6 +73,8 @@
   const restoreSubmitBtn = document.getElementById("restoreSubmitBtn");
   const restoreError = document.getElementById("restoreError");
   const restoreStatus = document.getElementById("restoreStatus");
+  const subscriptionInfoBackBtn = document.getElementById("subscriptionInfoBackBtn");
+  const subscriptionInfoRenewal = document.getElementById("subscriptionInfoRenewal");
 
   // --- local usage/entitlement storage ------------------------------------
   // Client-side only, same trust model as everything else in this app right
@@ -222,6 +234,21 @@
     }
   }
 
+  // --- subscription status (renewal date) -----------------------------------
+
+  function openSubscriptionInfo() {
+    const ent = readEntitlement();
+    const ts = ent && ent.currentPeriodEnd;
+    subscriptionInfoRenewal.textContent = ts
+      ? "Se reînnoiește pe " + new Date(ts * 1000).toLocaleDateString("ro-RO", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : "Data reînnoirii nu este disponibilă momentan.";
+    QCUI.showScreen("subscriptionInfo");
+  }
+
   // --- restore purchase by email --------------------------------------------
   // No accounts in this app, so entitlement lives in localStorage on one
   // device. This recovers it elsewhere (second device, cleared storage,
@@ -257,6 +284,7 @@
           active: true,
           subscriptionId: data.subscriptionId,
           plan: data.plan,
+          currentPeriodEnd: data.currentPeriodEnd,
           checkedAt: Date.now(),
         });
         updateFreeCounter();
@@ -315,6 +343,7 @@
           active: true,
           subscriptionId: data.subscriptionId,
           plan: data.plan,
+          currentPeriodEnd: data.currentPeriodEnd,
           checkedAt: Date.now(),
         });
       }
@@ -333,7 +362,12 @@
       const res = await fetch("/api/entitlement?subscription_id=" + encodeURIComponent(ent.subscriptionId));
       if (!res.ok) return;
       const data = await res.json();
-      writeEntitlement({ ...ent, active: !!data.active, checkedAt: Date.now() });
+      writeEntitlement({
+        ...ent,
+        active: !!data.active,
+        currentPeriodEnd: data.currentPeriodEnd != null ? data.currentPeriodEnd : ent.currentPeriodEnd,
+        checkedAt: Date.now(),
+      });
     } catch (e) {
       /* offline — keep the last known entitlement until we can reach the server */
     }
@@ -356,9 +390,12 @@
     if (e.key === "Enter") submitRestore();
   });
   freeCounter.addEventListener("click", () => {
-    if (config.planMode !== "unlimited" && !isEntitled()) openParentGate();
+    if (config.planMode === "unlimited") return;
+    if (isEntitled()) openSubscriptionInfo();
+    else openParentGate();
   });
   parentModeBtn.addEventListener("click", openParentGate);
+  subscriptionInfoBackBtn.addEventListener("click", () => QCUI.showScreen("start"));
 
   window.LIMIT = { tryConsume, tryConsumeAi, showDailyLimit };
 

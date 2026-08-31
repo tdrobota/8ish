@@ -60,10 +60,14 @@ export async function onRequestPost({ request, env }) {
     }
     const active = (subs.data || []).find((s) => s.status === "active" || s.status === "trialing");
     if (active) {
+      const item = active.items && active.items.data[0];
       return jsonResponse(200, {
         active: true,
         subscriptionId: active.id,
-        plan: active.items && active.items.data[0] ? active.items.data[0].price.id : null,
+        plan: item ? item.price.id : null,
+        // Stripe API 2025-03-31 ("Basil") moved current_period_end off the
+        // subscription object onto each subscription item.
+        currentPeriodEnd: item ? item.current_period_end : null,
       });
     }
   }
