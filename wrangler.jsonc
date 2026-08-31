@@ -37,6 +37,11 @@
       "ai": {
         "binding": "AI"
       },
+      // Custom Domain (not a legacy Route): wrangler provisions the DNS
+      // record and TLS certificate automatically on deploy — no manual
+      // dashboard step needed. www.8ish.app has no existing DNS record to
+      // conflict with (8ish.app's apex only has Email Routing's MX/TXT).
+      "routes": [{ "pattern": "www.8ish.app", "custom_domain": true }],
       "kv_namespaces": [
         {
           "binding": "COOLDOWN_KV",

@@ -401,13 +401,15 @@
     <p class="eyebrow">8ish+</p>
     <p class="info-text">Abonament activ</p>
     <p id="subscriptionInfoRenewal" class="info-subtext"></p>
+    <p id="subscriptionInfoCodeLabel" class="info-subtext" hidden>Codul tău de recuperare:</p>
+    <p id="subscriptionInfoCode" class="restore-code-display" hidden></p>
   </div>
 
-  <!-- Restore purchase by email (see functions/api/restore.js) -->
+  <!-- Restore purchase by email + saved restore code (see functions/api/restore.js) -->
   <div id="restore" class="screen info-screen" hidden>
     <button id="restoreBackBtn" class="btn-end btn-back" type="button">‹ Înapoi</button>
     <p class="eyebrow">Recuperează 8ish+</p>
-    <p class="info-text">Introdu emailul folosit la abonare</p>
+    <p class="info-text">Introdu emailul și codul primite la abonare</p>
     <input
       id="restoreEmailInput"
       class="gate-input restore-input"
@@ -417,9 +419,29 @@
       aria-label="Email"
       placeholder="email@exemplu.com"
     />
-    <p id="restoreError" class="gate-error" hidden>Nu am găsit un abonament activ pentru acest email.</p>
+    <input
+      id="restoreCodeInput"
+      class="gate-input restore-input"
+      type="text"
+      autocomplete="off"
+      autocapitalize="characters"
+      aria-label="Cod de recuperare"
+      placeholder="XXXXX-XXXXX"
+    />
+    <p id="restoreError" class="gate-error" hidden>Nu am găsit un abonament activ pentru acest email și cod.</p>
     <button id="restoreSubmitBtn" class="btn-start btn-mode" type="button">Recuperează</button>
     <p id="restoreStatus" class="info-subtext" hidden></p>
+  </div>
+
+  <!-- Shown once, right after a successful purchase, with the family's restore code -->
+  <div id="restoreCodeReveal" class="screen info-screen" hidden>
+    <p class="eyebrow">8ish+ activat! 🎉</p>
+    <p class="info-text">Salvează acest cod</p>
+    <p class="info-subtext">
+      Ai nevoie de el (împreună cu emailul folosit la abonare) ca să recuperezi abonamentul pe alt dispozitiv.
+    </p>
+    <p id="restoreCodeRevealValue" class="restore-code-display"></p>
+    <button id="restoreCodeRevealContinueBtn" class="btn-start btn-mode" type="button">Am notat codul</button>
   </div>
 
   <script src="questions.js"></script>

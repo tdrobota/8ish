@@ -31,6 +31,7 @@
   const paywallScreen = document.getElementById("paywall");
   const restoreScreen = document.getElementById("restore");
   const subscriptionInfoScreen = document.getElementById("subscriptionInfo");
+  const restoreCodeRevealScreenEl = document.getElementById("restoreCodeReveal");
 
   // Defensive: if index.html and this file ever drift apart, don't throw on
   // load and take the whole script (and window.LIMIT) down with it.
@@ -41,7 +42,8 @@
     !parentGateScreen ||
     !paywallScreen ||
     !restoreScreen ||
-    !subscriptionInfoScreen
+    !subscriptionInfoScreen ||
+    !restoreCodeRevealScreenEl
   ) {
     console.error("monetize.js: expected DOM not found, monetization disabled");
     return;
@@ -52,6 +54,7 @@
   QCUI.registerScreen("paywall", paywallScreen);
   QCUI.registerScreen("restore", restoreScreen);
   QCUI.registerScreen("subscriptionInfo", subscriptionInfoScreen);
+  QCUI.registerScreen("restoreCodeReveal", restoreCodeRevealScreenEl);
 
   const dailyLimitCount = document.getElementById("dailyLimitCount");
   const dailyLimitParentBtn = document.getElementById("dailyLimitParentBtn");
@@ -70,11 +73,16 @@
   const paywallRestoreBtn = document.getElementById("paywallRestoreBtn");
   const restoreBackBtn = document.getElementById("restoreBackBtn");
   const restoreEmailInput = document.getElementById("restoreEmailInput");
+  const restoreCodeInput = document.getElementById("restoreCodeInput");
   const restoreSubmitBtn = document.getElementById("restoreSubmitBtn");
   const restoreError = document.getElementById("restoreError");
   const restoreStatus = document.getElementById("restoreStatus");
   const subscriptionInfoBackBtn = document.getElementById("subscriptionInfoBackBtn");
   const subscriptionInfoRenewal = document.getElementById("subscriptionInfoRenewal");
+  const subscriptionInfoCodeLabel = document.getElementById("subscriptionInfoCodeLabel");
+  const subscriptionInfoCode = document.getElementById("subscriptionInfoCode");
+  const restoreCodeRevealValue = document.getElementById("restoreCodeRevealValue");
+  const restoreCodeRevealContinueBtn = document.getElementById("restoreCodeRevealContinueBtn");
 
   // --- local usage/entitlement storage ------------------------------------
   // Client-side only, same trust model as everything else in this app right
@@ -246,27 +254,45 @@
           year: "numeric",
         })
       : "Data reînnoirii nu este disponibilă momentan.";
+    // The restore code is only ever known on the device that originally
+    // completed checkout (see confirmCheckoutFromUrl) — a device that got
+    // its entitlement via restore.js never receives it back, since only its
+    // hash is stored server-side. Show it here for easy re-copying if the
+    // family didn't write it down the first time; otherwise say so plainly
+    // rather than showing a blank field.
+    const hasCode = ent && typeof ent.restoreCode === "string" && ent.restoreCode;
+    subscriptionInfoCodeLabel.hidden = !hasCode;
+    subscriptionInfoCode.hidden = !hasCode;
+    if (hasCode) subscriptionInfoCode.textContent = ent.restoreCode;
     QCUI.showScreen("subscriptionInfo");
   }
 
-  // --- restore purchase by email --------------------------------------------
+  // --- restore purchase by email + saved code -------------------------------
   // No accounts in this app, so entitlement lives in localStorage on one
   // device. This recovers it elsewhere (second device, cleared storage,
-  // private browsing) via the email Stripe Checkout already collected,
-  // instead of building a real login system for a hobby-scale product.
+  // private browsing) using the email Stripe Checkout already collected PLUS
+  // the one-time restore code shown once at purchase (see
+  // confirmCheckoutFromUrl below and functions/api/checkout-confirm.js) —
+  // requiring both, rather than trusting a submitted email alone, is what
+  // fixes an authorization bypass an earlier email-only version of this had.
 
   function openRestore() {
     restoreError.hidden = true;
     restoreStatus.hidden = true;
     restoreEmailInput.value = "";
+    restoreCodeInput.value = "";
     restoreSubmitBtn.disabled = false;
     QCUI.showScreen("restore");
     restoreEmailInput.focus();
   }
 
+  // A wrong email, wrong code, or no active subscription all get the same
+  // generic message — never distinguishable, so this can't be used to probe
+  // for valid emails.
   async function submitRestore() {
     const email = restoreEmailInput.value.trim();
-    if (!email) return;
+    const code = restoreCodeInput.value.trim();
+    if (!email || !code) return;
     restoreError.hidden = true;
     restoreStatus.hidden = false;
     restoreStatus.textContent = "Un moment...";
@@ -275,7 +301,7 @@
       const res = await fetch("/api/restore", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, code }),
       });
       if (!res.ok) throw new Error("restore_failed");
       const data = await res.json();
@@ -285,6 +311,11 @@
           subscriptionId: data.subscriptionId,
           plan: data.plan,
           currentPeriodEnd: data.currentPeriodEnd,
+          // Not returned by restore.js (only the code's hash is stored
+          // server-side, never recoverable) — a device that got entitlement
+          // this way just won't have a code to show later on
+          // subscriptionInfo; see the hasCode check there.
+          restoreCode: null,
           checkedAt: Date.now(),
         });
         updateFreeCounter();
@@ -300,6 +331,13 @@
       restoreError.hidden = false;
       restoreSubmitBtn.disabled = false;
     }
+  }
+
+  // --- restore code reveal (shown once, right after a fresh purchase) ------
+
+  function openRestoreCodeReveal(code) {
+    restoreCodeRevealValue.textContent = code;
+    QCUI.showScreen("restoreCodeReveal");
   }
 
   // --- boot: config, return-from-checkout confirm, entitlement recheck -----
@@ -344,8 +382,15 @@
           subscriptionId: data.subscriptionId,
           plan: data.plan,
           currentPeriodEnd: data.currentPeriodEnd,
+          restoreCode: data.restoreCode || null,
           checkedAt: Date.now(),
         });
+        // restoreCode is only ever present on the very first confirmation
+        // for a given Stripe customer (see checkout-confirm.js) — a repeat
+        // call (e.g. a stray page reload before the query string strip
+        // above lands) gets active:true again but no code, so this only
+        // fires once, right when the family needs to see and save it.
+        if (data.restoreCode) openRestoreCodeReveal(data.restoreCode);
       }
     } catch (e) {
       /* the subscription still exists on Stripe's side even if this
@@ -389,6 +434,10 @@
   restoreEmailInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") submitRestore();
   });
+  restoreCodeInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submitRestore();
+  });
+  restoreCodeRevealContinueBtn.addEventListener("click", () => QCUI.showScreen("start"));
   freeCounter.addEventListener("click", () => {
     if (config.planMode === "unlimited") return;
     if (isEntitled()) openSubscriptionInfo();

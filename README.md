@@ -36,8 +36,12 @@ Then open `http://localhost:8080`.
 - `monetize.js` — free daily limit / Parent Gate / 8ish+ paywall (only active
   when `/api/config` reports `planMode: "free"`; a no-op on the kid's deploy)
 - `functions/api/config.js`, `checkout.js`, `checkout-confirm.js`,
-  `entitlement.js` — Cloudflare Functions backing the above, wired in
-  `worker.js`
+  `entitlement.js`, `restore.js` — Cloudflare Functions backing the above,
+  wired in `worker.js`. Restore requires both the subscriber's email AND a
+  one-time restore code shown once at purchase (`checkout-confirm.js` issues
+  it, only ever storing its hash) — trusting a submitted email alone would
+  let anyone who knew a customer's email steal their subscription; see the
+  comments in `restore.js` for why.
 
 ## Deploy
 
@@ -66,3 +70,11 @@ redirects back after checkout, then rechecked at most once a day per device.
 That means a cancellation can take up to ~24h to actually lock the app back
 down; fine for a first version, worth revisiting once there are real
 subscribers.
+
+No email-sending setup is needed either: instead of emailing a one-time
+restore code (which would require Cloudflare's Email Sending product and the
+paid Workers plan), the restore code is shown once on-screen right after
+checkout completes, and the family is expected to save it themselves — same
+trade-off as any password-reset recovery code. If they lose it and both
+devices' local storage, there's currently no self-serve recovery path; that's
+an accepted limitation at this hobby scale, not an oversight.

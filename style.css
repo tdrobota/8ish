@@ -887,6 +887,22 @@ body {
   padding: 0.4em 0.8em;
 }
 
+/* The restore code shown once at purchase (#restoreCodeReveal) and re-shown
+   on #subscriptionInfo (#restoreCodeRevealValue / #subscriptionInfoCode) —
+   large and letter-spaced so it's easy to read back when writing it down. */
+.restore-code-display {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  background: var(--paper-chip);
+  border: 4px solid var(--ink);
+  border-radius: 1rem;
+  padding: 0.5em 0.9em;
+}
+
 .paywall-plans {
   display: flex;
   flex-wrap: wrap;
