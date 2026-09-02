@@ -887,6 +887,89 @@ body {
   padding: 0.4em 0.8em;
 }
 
+.paywall-legal-links {
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+}
+
+/* ---------- Legal pages (privacy.html, terms.html) ---------- */
+/* Unlike the app's .screen (fixed, full-viewport, single card at a time),
+   these are normal scrolling documents — plain page flow, not the SPA's
+   screen-switching system. Body copy uses the system font stack rather than
+   Poppins: the self-hosted Poppins file only has a 700 (bold) weight (see
+   the @font-face rules above), which suits the app's short shouted card
+   text but reads poorly at paragraph length; headings still use Poppins so
+   the page still feels like part of the same product. */
+
+.policy-page {
+  min-height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.6;
+}
+
+.policy-content {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: max(2rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right))
+    max(3rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
+}
+
+.policy-back {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: underline;
+  color: var(--ink);
+  opacity: 0.7;
+}
+
+.policy-content h1 {
+  margin: 0 0 0.3rem;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  color: var(--ink);
+}
+
+.policy-updated {
+  margin: 0 0 2rem;
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+.policy-content h2 {
+  margin: 2rem 0 0.75rem;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+
+.policy-content p,
+.policy-content li {
+  margin: 0 0 0.9rem;
+  font-size: 1rem;
+}
+
+.policy-content ul {
+  margin: 0 0 0.9rem;
+  padding-left: 1.3rem;
+}
+
+.policy-content a {
+  color: var(--ink);
+}
+
+.policy-content strong {
+  font-weight: 700;
+}
+
 /* The restore code shown once at purchase (#restoreCodeReveal) and re-shown
    on #subscriptionInfo (#restoreCodeRevealValue / #subscriptionInfoCode) —
    large and letter-spaced so it's easy to read back when writing it down. */
