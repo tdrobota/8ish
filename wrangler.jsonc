@@ -57,10 +57,11 @@
         "PRICE_MONTHLY_RON": "19.99",
         "PRICE_YEARLY_RON": "149",
         "PRICE_CURRENCY": "RON",
-        // Stripe Price IDs (price_...), not secret, but real values must be
-        // filled in before checkout will work — see README "Go-live checklist".
-        "STRIPE_PRICE_MONTHLY": "price_1UAGAhLlZSOHeyR1RkQmLaMf",
-        "STRIPE_PRICE_YEARLY": "price_1UAGAiLlZSOHeyR1V8OvD4lM"
+        // Stripe LIVE-mode Price IDs (price_...), not secret — these only
+        // work paired with a live STRIPE_SECRET_KEY (see README "Go-live
+        // checklist"); a test-mode key will reject them and vice versa.
+        "STRIPE_PRICE_MONTHLY": "price_1UBGYiLB8ccn9aOAwgO14piO",
+        "STRIPE_PRICE_YEARLY": "price_1UBGYiLB8ccn9aOA5ACoY5Oe"
       }
     }
   }
