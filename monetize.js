@@ -14,7 +14,10 @@
   const USAGE_KEY = "8ish_usage_v1";
   const AI_USAGE_KEY = "8ish_ai_usage_v1";
   const ENTITLEMENT_KEY = "8ish_entitlement_v1";
-  const ENTITLEMENT_RECHECK_MS = 24 * 60 * 60 * 1000;
+  // Was 24h before stripe-webhook.js existed (see entitlement.js) — now a
+  // cheap KV read in the common case, so this is just a floor against
+  // redundant calls on rapid reloads, not a cost-driven interval.
+  const ENTITLEMENT_RECHECK_MS = 60 * 1000;
 
   let config = {
     planMode: "unlimited",

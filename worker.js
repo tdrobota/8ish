@@ -11,6 +11,7 @@ import { onRequestPost as checkoutPost } from "./functions/api/checkout.js";
 import { onRequestGet as checkoutConfirmGet } from "./functions/api/checkout-confirm.js";
 import { onRequestGet as entitlementGet } from "./functions/api/entitlement.js";
 import { onRequestPost as restorePost } from "./functions/api/restore.js";
+import { onRequestPost as stripeWebhookPost } from "./functions/api/stripe-webhook.js";
 
 export default {
   async fetch(request, env, ctx) {
@@ -56,6 +57,13 @@ export default {
         return new Response("Method not allowed", { status: 405 });
       }
       return restorePost({ request, env, ctx });
+    }
+
+    if (url.pathname === "/api/webhooks/stripe") {
+      if (request.method !== "POST") {
+        return new Response("Method not allowed", { status: 405 });
+      }
+      return stripeWebhookPost({ request, env, ctx });
     }
 
     return new Response("Not found", { status: 404 });
