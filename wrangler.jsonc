@@ -37,11 +37,15 @@
       "ai": {
         "binding": "AI"
       },
-      // Custom Domain (not a legacy Route): wrangler provisions the DNS
+      // Custom Domains (not legacy Routes): wrangler provisions the DNS
       // record and TLS certificate automatically on deploy — no manual
-      // dashboard step needed. www.8ish.app has no existing DNS record to
-      // conflict with (8ish.app's apex only has Email Routing's MX/TXT).
-      "routes": [{ "pattern": "www.8ish.app", "custom_domain": true }],
+      // dashboard step needed. Both the apex and www point at the same
+      // Worker so visiting either address works (bare 8ish.app was 404ing
+      // before this — no route existed for it, only www.8ish.app).
+      "routes": [
+        { "pattern": "www.8ish.app", "custom_domain": true },
+        { "pattern": "8ish.app", "custom_domain": true }
+      ],
       "kv_namespaces": [
         {
           "binding": "COOLDOWN_KV",
