@@ -111,6 +111,23 @@
     return mode === "challenges" ? CHALLENGES : QUESTIONS;
   }
 
+  // Templated questions (see templates.js) contain a {TOKEN} placeholder —
+  // substituted fresh every time the card is drawn, so one entry in
+  // QUESTIONS produces many different prompts instead of one fixed one.
+  const TEMPLATE_WORD_LISTS = {
+    "{LITERA}": window.TEMPLATE_LETTERS,
+    "{CATEGORIE}": window.TEMPLATE_CATEGORIES,
+    "{CULOARE}": window.TEMPLATE_COLORS,
+  };
+
+  function applyTemplate(text) {
+    return text.replace(/\{[A-Z]+\}/g, (token) => {
+      const words = TEMPLATE_WORD_LISTS[token];
+      if (!words || words.length === 0) return token;
+      return words[Math.floor(Math.random() * words.length)];
+    });
+  }
+
   function shuffled(n) {
     const arr = Array.from({ length: n }, (_, i) => i);
     for (let i = arr.length - 1; i > 0; i--) {
@@ -169,7 +186,7 @@
     const idx = drawNextIndex();
     const item = bank[idx];
     const isChallenge = mode === "challenges";
-    const text = isChallenge ? item.text : item;
+    const text = isChallenge ? item.text : applyTemplate(item);
     const seconds = isChallenge ? item.seconds : 0;
 
     questionText.textContent = text;

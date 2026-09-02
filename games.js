@@ -132,4 +132,43 @@ window.GAMES = [
       { icon: "cold", text: "...și „rece” când se îndepărtează, până când cineva îl găsește!" },
     ],
   },
+  {
+    id: "seful-zice",
+    name: "Șeful zice",
+    icon: "point",
+    players: "3 sau mai mulți copii",
+    description: "Un „șef” dă comenzi, dar ceilalți le fac doar dacă aude „Șeful zice” înainte.",
+    steps: [
+      { icon: "point", text: "Un copil este ales „șeful” și dă comenzi, de exemplu „Șeful zice: sari într-un picior!”." },
+      { icon: "standing", text: "Ceilalți copii fac comanda DOAR dacă șeful a spus „Șeful zice” înainte." },
+      { icon: "freeze", text: "Dacă șeful dă o comandă fără „Șeful zice”, nimeni nu trebuie să o facă!" },
+      { icon: "out", text: "Cine greșește iese din joc — ultimul copil rămas devine noul șef!" },
+    ],
+  },
+  {
+    id: "vad-vad",
+    name: "Văd, văd",
+    icon: "seek",
+    players: "2 sau mai mulți copii",
+    description: "Un copil alege în minte un obiect din cameră, iar ceilalți ghicesc ce e după culoare.",
+    steps: [
+      { icon: "standing", text: "Un copil spune tare: „Văd, văd!”, iar ceilalți răspund: „Ce vezi?”." },
+      { icon: "point", text: "El răspunde: „Un lucru... de culoare roșie!” (de exemplu), fără să spună ce e." },
+      { icon: "seek", text: "Ceilalți copii se uită prin cameră și încearcă să ghicească obiectul de acea culoare." },
+      { icon: "swap", text: "Cine ghicește corect alege următorul obiect și jocul continuă!" },
+    ],
+  },
+  {
+    id: "mima",
+    name: "Mima",
+    icon: "standing",
+    players: "4 sau mai mulți copii, în echipe",
+    description: "Un copil mimează un cuvânt secret prin gesturi, fără cuvinte, iar echipa lui ghicește.",
+    steps: [
+      { icon: "whisper", text: "Un copil primește în șoaptă un cuvânt secret — un animal, o meserie, un obiect." },
+      { icon: "standing", text: "El trebuie să mimeze cuvântul doar prin gesturi, fără să vorbească sau să scoată sunete." },
+      { icon: "seek", text: "Echipa lui încearcă să ghicească cuvântul cât mai repede, strigând răspunsuri." },
+      { icon: "swap", text: "Cine ghicește corect mimează următorul cuvânt sau se schimbă rândul la cealaltă echipă!" },
+    ],
+  },
 ];
