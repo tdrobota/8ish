@@ -8,107 +8,268 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="policy-page">
-  <div class="policy-content">
-    <a class="policy-back" href="/">‹ Înapoi la 8ish</a>
-    <h1>Politica de confidențialitate</h1>
-    <p class="policy-updated">Ultima actualizare: 2 septembrie 2026</p>
+  <div class="policy-wrap">
 
-    <p>
-      8ish este o aplicație de activități pentru copii (întrebări, provocări, jocuri și un mod de
-      desenat cu ajutorul inteligenței artificiale), operată de
-      <strong>Drobota Andreea-Gabriela Persoana Fizica Autorizata</strong> ("noi", "operatorul").
-      Ne poți contacta oricând la <a href="mailto:teodro11@gmail.com">teodro11@gmail.com</a>.
-    </p>
-    <p>
-      Aplicația a fost construită special să colecteze cât mai puține date posibil. Mai jos
-      descriem exact ce se întâmplă cu datele, fără text generic.
-    </p>
+    <div class="policy-lang" data-lang="ro">
+      <div class="policy-topbar">
+        <a class="policy-back" href="/">‹ Înapoi la 8ish</a>
+        <button class="lang-toggle-btn policy-lang-toggle-btn" type="button" data-toggle-lang>EN</button>
+      </div>
+      <header class="policy-header">
+        <h1>Politica de confidențialitate</h1>
+        <p class="policy-updated">Ultima actualizare: 2 septembrie 2026</p>
+      </header>
 
-    <h2>Ce NU colectăm</h2>
-    <p>
-      8ish nu are conturi de utilizator, nu cere numele copilului, nu are chat sau conținut
-      partajat public, și nu folosește cookie-uri de marketing, reclame sau instrumente de
-      urmărire (tracking). Întrebările, provocările și jocurile funcționează complet local, pe
-      dispozitiv — nimic din ce vezi în aceste moduri este trimis vreunui server.
-    </p>
+      <div class="policy-card policy-content">
+        <p>
+          8ish este o aplicație de activități pentru copii (întrebări, provocări, jocuri și un mod de
+          desenat cu ajutorul inteligenței artificiale), operată de
+          <strong>Drobota Andreea-Gabriela Persoana Fizica Autorizata</strong> ("noi", "operatorul").
+          Ne poți contacta oricând la <a href="mailto:8siceva@gmail.com">8siceva@gmail.com</a>.
+        </p>
+        <p>
+          Aplicația a fost construită special să colecteze cât mai puține date posibil. Mai jos
+          descriem exact ce se întâmplă cu datele, fără text generic.
+        </p>
 
-    <h2>Modul Desenează (funcție AI)</h2>
-    <p>
-      Când un copil folosește modul Desenează, schița desenată este trimisă către un model de
-      inteligență artificială (procesat prin infrastructura Cloudflare Workers AI) pentru a genera
-      o versiune "adusă la viață" a desenului. Schița este folosită doar cât timp durează
-      procesarea — aplicația noastră nu o stochează permanent și nu o asociază cu nicio persoană.
-    </p>
+        <h2>Ce NU colectăm</h2>
+        <p>
+          8ish nu are conturi de utilizator, nu cere numele copilului, nu are chat sau conținut
+          partajat public, și nu folosește cookie-uri de marketing, reclame sau instrumente de
+          urmărire (tracking). Întrebările, provocările și jocurile funcționează complet local, pe
+          dispozitiv — nimic din ce vezi în aceste moduri este trimis vreunui server.
+        </p>
 
-    <h2>Abonamentul 8ish+</h2>
-    <p>
-      Dacă un părinte alege să se aboneze la 8ish+, plata este procesată integral de
-      <strong>Stripe</strong>, pe o pagină găzduită de Stripe — noi nu vedem și nu stocăm
-      niciodată datele cardului. Stripe colectează adresa de email folosită la abonare, conform
-      <a href="https://stripe.com/privacy" target="_blank" rel="noopener">politicii de
-      confidențialitate a Stripe</a>.
-    </p>
-    <p>
-      Accesul la ecranul de plată este protejat printr-un "Parent Gate" (o întrebare simplă de
-      matematică), menit să reducă șansa ca un copil să ajungă accidental la această secțiune.
-    </p>
-    <p>
-      La finalizarea unui abonament, primești o dată un <strong>cod de recuperare</strong> unic pe
-      ecran, pentru a putea recupera abonamentul pe alt dispozitiv. Noi nu stocăm acest cod în
-      formă lizibilă — păstrăm doar o formă criptografică (hash) a lui, care nu poate fi tradusă
-      înapoi în codul original. Este responsabilitatea ta să salvezi codul; dacă îl pierzi, ne
-      poți contacta, dar recuperarea automată nu este posibilă fără el.
-    </p>
-    <p>
-      Când folosești formularul de recuperare a abonamentului, adresa de email introdusă este
-      folosită temporar pentru a verifica cererea (inclusiv o limitare de 60 de secunde între
-      încercări, pentru a preveni abuzul) — nu este păstrată permanent de noi.
-    </p>
+        <h2>Modul Desenează (funcție AI)</h2>
+        <p>
+          Când un copil folosește modul Desenează, schița desenată este trimisă către un model de
+          inteligență artificială (procesat prin infrastructura Cloudflare Workers AI) pentru a genera
+          o versiune "adusă la viață" a desenului. Schița este folosită doar cât timp durează
+          procesarea — aplicația noastră nu o stochează permanent și nu o asociază cu nicio persoană.
+        </p>
 
-    <h2>Ce se salvează pe dispozitivul tău</h2>
-    <p>
-      Aplicația salvează local, în browser (localStorage), câteva informații tehnice necesare
-      funcționării: câte activități ai folosit azi (pentru limita zilnică gratuită) și starea
-      abonamentului 8ish+ (activ/inactiv, data reînnoirii, codul de recuperare dacă a fost emis pe
-      acel dispozitiv). Aceste date rămân pe dispozitiv, nu sunt trimise către noi, și pot fi
-      șterse oricând din setările browserului.
-    </p>
+        <h2>Abonamentul 8ish+</h2>
+        <p>
+          Dacă un părinte alege să se aboneze la 8ish+, plata este procesată integral de
+          <strong>Stripe</strong>, pe o pagină găzduită de Stripe — noi nu vedem și nu stocăm
+          niciodată datele cardului. Stripe colectează adresa de email folosită la abonare, conform
+          <a href="https://stripe.com/privacy" target="_blank" rel="noopener">politicii de
+          confidențialitate a Stripe</a>.
+        </p>
+        <p>
+          Accesul la ecranul de plată este protejat printr-un "Parent Gate" (o întrebare simplă de
+          matematică), menit să reducă șansa ca un copil să ajungă accidental la această secțiune.
+        </p>
+        <p>
+          La finalizarea unui abonament, primești o dată un <strong>cod de recuperare</strong> unic pe
+          ecran, pentru a putea recupera abonamentul pe alt dispozitiv. Noi nu stocăm acest cod în
+          formă lizibilă — păstrăm doar o formă criptografică (hash) a lui, care nu poate fi tradusă
+          înapoi în codul original. Este responsabilitatea ta să salvezi codul; dacă îl pierzi, ne
+          poți contacta, dar recuperarea automată nu este posibilă fără el.
+        </p>
+        <p>
+          Când folosești formularul de recuperare a abonamentului, adresa de email introdusă este
+          folosită temporar pentru a verifica cererea (inclusiv o limitare de 60 de secunde între
+          încercări, pentru a preveni abuzul) — nu este păstrată permanent de noi.
+        </p>
 
-    <h2>Furnizori terți (subprocesatori)</h2>
-    <ul>
-      <li><strong>Cloudflare</strong> — găzduiește aplicația, procesează cererile către modelul
-        AI de desenat, și păstrează jurnale tehnice standard (loguri de operare, pentru
-        depanare și fiabilitate).</li>
-      <li><strong>Stripe</strong> — procesează plățile și datele asociate abonamentului 8ish+.</li>
-    </ul>
+        <h2>Cookie-uri și stocare locală</h2>
+        <p>
+          8ish nu folosește cookie-uri de urmărire, publicitate sau analiză — de fapt, nu folosește
+          deloc cookie-uri. Aplicația salvează local, în browser (localStorage), câteva informații
+          tehnice strict necesare funcționării: câte activități ai folosit azi (pentru limita zilnică
+          gratuită), starea abonamentului 8ish+ (activ/inactiv, data reînnoirii, codul de recuperare
+          dacă a fost emis pe acel dispozitiv) și limba aleasă (română/engleză). Fiind strict
+          necesară funcționării aplicației, această stocare nu necesită un banner de consimțământ
+          conform legislației aplicabile (Directiva ePrivacy) — nu există nimic de urmărire de
+          acceptat sau refuzat. Aceste date rămân pe dispozitivul tău, nu sunt trimise către noi, și
+          pot fi șterse oricând din setările browserului.
+        </p>
 
-    <h2>Copii și confidențialitate</h2>
-    <p>
-      8ish este gândită să fie folosită de copii cu supraveghere sau permisiunea unui părinte,
-      dar nu colectăm date personale direct de la copii prin niciuna dintre funcțiile aplicației.
-      Singurul moment în care se colectează date personale (email, plată) este atunci când un
-      adult finalizează un abonament prin Stripe.
-    </p>
+        <h2>Furnizori terți (subprocesatori)</h2>
+        <ul>
+          <li><strong>Cloudflare</strong> — găzduiește aplicația, procesează cererile către modelul
+            AI de desenat, și păstrează jurnale tehnice standard (loguri de operare, pentru
+            depanare și fiabilitate).</li>
+          <li><strong>Stripe</strong> — procesează plățile și datele asociate abonamentului 8ish+.</li>
+        </ul>
 
-    <h2>Drepturile tale</h2>
-    <p>
-      Poți solicita oricând acces la datele deținute despre tine, corectarea sau ștergerea lor,
-      scriindu-ne la <a href="mailto:teodro11@gmail.com">teodro11@gmail.com</a>. Cum aplicația nu
-      are un cont central, cea mai mare parte a datelor (utilizare, abonament) este deja doar pe
-      dispozitivul tău și poate fi ștearsă direct din browser; pentru datele deținute de Stripe
-      (email, plată), ne poți contacta sau te poți adresa direct Stripe.
-    </p>
+        <h2>Copii și confidențialitate</h2>
+        <p>
+          8ish este gândită să fie folosită de copii cu supraveghere sau permisiunea unui părinte,
+          dar nu colectăm date personale direct de la copii prin niciuna dintre funcțiile aplicației.
+          Singurul moment în care se colectează date personale (email, plată) este atunci când un
+          adult finalizează un abonament prin Stripe.
+        </p>
 
-    <h2>Modificări</h2>
-    <p>
-      Această politică poate fi actualizată pe măsură ce aplicația evoluează. Data ultimei
-      actualizări este afișată la începutul paginii.
-    </p>
+        <h2>Drepturile tale</h2>
+        <p>
+          Poți solicita oricând acces la datele deținute despre tine, corectarea sau ștergerea lor,
+          scriindu-ne la <a href="mailto:8siceva@gmail.com">8siceva@gmail.com</a>. Cum aplicația nu
+          are un cont central, cea mai mare parte a datelor (utilizare, abonament) este deja doar pe
+          dispozitivul tău și poate fi ștearsă direct din browser; pentru datele deținute de Stripe
+          (email, plată), ne poți contacta sau te poți adresa direct Stripe.
+        </p>
 
-    <p class="policy-updated">
-      Acest document descrie în limbaj simplu practicile reale ale aplicației și nu reprezintă
-      consultanță juridică.
-    </p>
+        <h2>Modificări</h2>
+        <p>
+          Această politică poate fi actualizată pe măsură ce aplicația evoluează. Data ultimei
+          actualizări este afișată la începutul paginii.
+        </p>
+      </div>
+
+      <p class="policy-footnote">
+        Acest document descrie în limbaj simplu practicile reale ale aplicației și nu reprezintă
+        consultanță juridică.
+      </p>
+    </div>
+
+    <div class="policy-lang" data-lang="en" hidden>
+      <div class="policy-topbar">
+        <a class="policy-back" href="/">‹ Back to 8ish</a>
+        <button class="lang-toggle-btn policy-lang-toggle-btn" type="button" data-toggle-lang>RO</button>
+      </div>
+      <header class="policy-header">
+        <h1>Privacy Policy</h1>
+        <p class="policy-updated">Last updated: September 2, 2026</p>
+      </header>
+
+      <div class="policy-card policy-content">
+        <p>
+          8ish is an activity app for kids (questions, challenges, games, and an AI-assisted
+          drawing mode), operated by
+          <strong>Drobota Andreea-Gabriela Persoana Fizica Autorizata</strong> ("we", "the
+          operator"). You can reach us any time at
+          <a href="mailto:8siceva@gmail.com">8siceva@gmail.com</a>.
+        </p>
+        <p>
+          The app was built specifically to collect as little data as possible. Below we describe
+          exactly what happens with data, without generic boilerplate.
+        </p>
+
+        <h2>What we DON'T collect</h2>
+        <p>
+          8ish has no user accounts, doesn't ask for a child's name, has no chat or publicly shared
+          content, and doesn't use marketing, advertising, or tracking cookies. Questions,
+          challenges, and games run entirely locally on the device — nothing you see in those modes
+          is ever sent to a server.
+        </p>
+
+        <h2>Draw mode (AI feature)</h2>
+        <p>
+          When a child uses Draw mode, the sketch they drew is sent to an AI model (processed via
+          Cloudflare Workers AI infrastructure) to generate a "brought to life" version of the
+          drawing. The sketch is only used for the duration of processing — our app doesn't store it
+          permanently and doesn't associate it with any person.
+        </p>
+
+        <h2>The 8ish+ subscription</h2>
+        <p>
+          If a parent chooses to subscribe to 8ish+, payment is processed entirely by
+          <strong>Stripe</strong>, on a page hosted by Stripe — we never see or store card details.
+          Stripe collects the email address used to subscribe, per
+          <a href="https://stripe.com/privacy" target="_blank" rel="noopener">Stripe's privacy
+          policy</a>.
+        </p>
+        <p>
+          Access to the payment screen is protected by a "Parent Gate" (a simple math question),
+          meant to reduce the chance of a child accidentally reaching that section.
+        </p>
+        <p>
+          When a subscription is first confirmed, you're shown a unique <strong>recovery code</strong>
+          once, on screen, so you can restore the subscription on another device. We never store
+          this code in readable form — we only keep a cryptographic hash of it, which cannot be
+          reversed back into the original code. It's your responsibility to save the code; if you
+          lose it, you can contact us, but automatic recovery won't be possible without it.
+        </p>
+        <p>
+          When you use the subscription-restore form, the email address you enter is used
+          temporarily to verify the request (including a 60-second limit between attempts, to
+          prevent abuse) — it is not kept permanently by us.
+        </p>
+
+        <h2>Cookies and local storage</h2>
+        <p>
+          8ish doesn't use tracking, advertising, or analytics cookies — in fact, it doesn't use
+          cookies at all. The app saves a few technical pieces of information locally, in your
+          browser (localStorage), that are strictly necessary for it to work: how many activities
+          you've used today (for the free daily limit), your 8ish+ subscription status
+          (active/inactive, renewal date, the recovery code if one was issued on that device), and
+          your chosen language (Romanian/English). Because this storage is strictly necessary for
+          the app to function, it doesn't require a consent banner under applicable law (the
+          ePrivacy Directive) — there's nothing tracking-related to accept or decline. This data
+          stays on your device, is never sent to us, and can be cleared any time from your browser
+          settings.
+        </p>
+
+        <h2>Third-party providers (subprocessors)</h2>
+        <ul>
+          <li><strong>Cloudflare</strong> — hosts the app, processes requests to the AI drawing
+            model, and keeps standard technical logs (operational logs, for debugging and
+            reliability).</li>
+          <li><strong>Stripe</strong> — processes payments and the data associated with the 8ish+
+            subscription.</li>
+        </ul>
+
+        <h2>Children and privacy</h2>
+        <p>
+          8ish is designed to be used by children with a parent's supervision or permission, but we
+          don't collect personal data directly from children through any feature of the app. The
+          only time personal data is collected (email, payment) is when an adult completes a
+          subscription through Stripe.
+        </p>
+
+        <h2>Your rights</h2>
+        <p>
+          You can request access to, correction of, or deletion of any data we hold about you at any
+          time, by writing to <a href="mailto:8siceva@gmail.com">8siceva@gmail.com</a>. Since the
+          app has no central account, most of the data (usage, subscription) already lives only on
+          your own device and can be deleted directly from your browser; for data held by Stripe
+          (email, payment), you can contact us or reach out to Stripe directly.
+        </p>
+
+        <h2>Changes</h2>
+        <p>
+          This policy may be updated as the app evolves. The date of the last update is shown at the
+          top of the page.
+        </p>
+      </div>
+
+      <p class="policy-footnote">
+        This document describes the app's actual practices in plain language and does not
+        constitute legal advice.
+      </p>
+    </div>
+
   </div>
+
+  <script>
+    (function () {
+      "use strict";
+      var KEY = "8ish_lang_v1";
+      function readLang() {
+        try {
+          return localStorage.getItem(KEY) === "en" ? "en" : "ro";
+        } catch (e) {
+          return "ro";
+        }
+      }
+      var lang = readLang();
+      document.documentElement.lang = lang;
+      document.querySelectorAll(".policy-lang").forEach(function (el) {
+        el.hidden = el.getAttribute("data-lang") !== lang;
+      });
+      document.querySelectorAll("[data-toggle-lang]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          try {
+            localStorage.setItem(KEY, lang === "en" ? "ro" : "en");
+          } catch (e) {
+            /* private mode / storage unavailable — toggle just won't persist */
+          }
+          window.location.reload();
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

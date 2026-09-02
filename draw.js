@@ -52,14 +52,14 @@
   const drawErrorMessage = document.getElementById("drawErrorMessage");
   const drawRetryBtn = document.getElementById("drawRetryBtn");
 
-  // Kid-friendly Romanian copy per failure kind (Design Notes). Cooldown maps
-  // from a 429; every other non-200 (502/504/anything else) shares the
+  // Kid-friendly copy per failure kind (Design Notes), via i18n.js. Cooldown
+  // maps from a 429; every other non-200 (502/504/anything else) shares the
   // generic provider/timeout message; a rejected fetch itself is "offline".
-  const RESULT_MESSAGES = {
-    cooldown: "Așteaptă puțin și mai încearcă o dată!",
-    provider_error: "Hopa! Ceva nu a mers bine. Mai încearcă!",
-    offline: "Ai nevoie de internet ca desenul tău să prindă viață. Încearcă din nou!",
-    ai_limit: "Ai folosit desenul AI gratuit de azi. Roagă un părinte să deblocheze 8ish+ pentru mai multe!",
+  const RESULT_MESSAGE_KEYS = {
+    cooldown: "drawCooldown",
+    provider_error: "drawProviderError",
+    offline: "drawOffline",
+    ai_limit: "drawAiLimit",
   };
 
   // In-memory only (mirrors app.js's session state: nothing here is ever persisted).
@@ -264,14 +264,14 @@
     const sketchUrl = capturedImage ? capturedImage.dataUrl : "";
     if (showingSketch) {
       drawResultMainImg.src = sketchUrl;
-      drawResultMainImg.alt = "Desenul tău original";
+      drawResultMainImg.alt = window.I18N.t("drawOriginalAlt");
       drawToggleThumb.src = renderedImageDataUrl || "";
-      drawToggleBtn.setAttribute("aria-label", "Arată opera ta");
+      drawToggleBtn.setAttribute("aria-label", window.I18N.t("showArtworkAria"));
     } else {
       drawResultMainImg.src = renderedImageDataUrl || "";
-      drawResultMainImg.alt = "Opera ta de artă";
+      drawResultMainImg.alt = window.I18N.t("drawArtworkAlt");
       drawToggleThumb.src = sketchUrl;
-      drawToggleBtn.setAttribute("aria-label", "Arată desenul original");
+      drawToggleBtn.setAttribute("aria-label", window.I18N.t("showOriginalAria"));
     }
   }
 
@@ -342,7 +342,7 @@
   }
 
   function finishFailure(kind) {
-    drawErrorMessage.textContent = RESULT_MESSAGES[kind] || RESULT_MESSAGES.provider_error;
+    drawErrorMessage.textContent = window.I18N.t(RESULT_MESSAGE_KEYS[kind] || RESULT_MESSAGE_KEYS.provider_error);
     showResultSubState("error");
     inFlight = false;
     drawRetryBtn.disabled = false;

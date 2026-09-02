@@ -1,4 +1,4 @@
-// Monetization — free daily limit, Parent Gate, and 8ish+ paywall.
+// Monetization — free daily limit, Parent Gate, Parents Hub, and 8ish+ paywall.
 //
 // Everything here is a no-op on the kid's own deploy: /api/config returns
 // planMode "unlimited" there (see wrangler.jsonc's top-level vars vs.
@@ -9,6 +9,8 @@
 // link keeps working exactly as before regardless of what happens here.
 (() => {
   "use strict";
+
+  const t = window.I18N.t;
 
   const CONFIG_TIMEOUT_MS = 4000;
   const USAGE_KEY = "8ish_usage_v1";
@@ -31,9 +33,9 @@
   const parentModeBtn = document.getElementById("parentModeBtn");
   const dailyLimitScreen = document.getElementById("dailyLimit");
   const parentGateScreen = document.getElementById("parentGate");
+  const parentsHubScreen = document.getElementById("parentsHub");
   const paywallScreen = document.getElementById("paywall");
   const restoreScreen = document.getElementById("restore");
-  const subscriptionInfoScreen = document.getElementById("subscriptionInfo");
   const restoreCodeRevealScreenEl = document.getElementById("restoreCodeReveal");
 
   // Defensive: if index.html and this file ever drift apart, don't throw on
@@ -43,9 +45,9 @@
     !parentModeBtn ||
     !dailyLimitScreen ||
     !parentGateScreen ||
+    !parentsHubScreen ||
     !paywallScreen ||
     !restoreScreen ||
-    !subscriptionInfoScreen ||
     !restoreCodeRevealScreenEl
   ) {
     console.error("monetize.js: expected DOM not found, monetization disabled");
@@ -54,12 +56,12 @@
 
   QCUI.registerScreen("dailyLimit", dailyLimitScreen);
   QCUI.registerScreen("parentGate", parentGateScreen);
+  QCUI.registerScreen("parentsHub", parentsHubScreen);
   QCUI.registerScreen("paywall", paywallScreen);
   QCUI.registerScreen("restore", restoreScreen);
-  QCUI.registerScreen("subscriptionInfo", subscriptionInfoScreen);
   QCUI.registerScreen("restoreCodeReveal", restoreCodeRevealScreenEl);
 
-  const dailyLimitCount = document.getElementById("dailyLimitCount");
+  const dailyLimitText = document.getElementById("dailyLimitText");
   const dailyLimitParentBtn = document.getElementById("dailyLimitParentBtn");
   const dailyLimitTomorrowBtn = document.getElementById("dailyLimitTomorrowBtn");
   const parentGateQuestion = document.getElementById("parentGateQuestion");
@@ -67,6 +69,14 @@
   const parentGateSubmit = document.getElementById("parentGateSubmit");
   const parentGateError = document.getElementById("parentGateError");
   const parentGateBackBtn = document.getElementById("parentGateBackBtn");
+  const parentsHubBackBtn = document.getElementById("parentsHubBackBtn");
+  const parentsHubSubscribed = document.getElementById("parentsHubSubscribed");
+  const parentsHubNotSubscribed = document.getElementById("parentsHubNotSubscribed");
+  const parentsHubRenewal = document.getElementById("parentsHubRenewal");
+  const parentsHubCodeLabel = document.getElementById("parentsHubCodeLabel");
+  const parentsHubCode = document.getElementById("parentsHubCode");
+  const parentsHubUpgradeBtn = document.getElementById("parentsHubUpgradeBtn");
+  const parentsHubRestoreBtn = document.getElementById("parentsHubRestoreBtn");
   const paywallBackBtn = document.getElementById("paywallBackBtn");
   const paywallMonthlyBtn = document.getElementById("paywallMonthlyBtn");
   const paywallYearlyBtn = document.getElementById("paywallYearlyBtn");
@@ -80,10 +90,6 @@
   const restoreSubmitBtn = document.getElementById("restoreSubmitBtn");
   const restoreError = document.getElementById("restoreError");
   const restoreStatus = document.getElementById("restoreStatus");
-  const subscriptionInfoBackBtn = document.getElementById("subscriptionInfoBackBtn");
-  const subscriptionInfoRenewal = document.getElementById("subscriptionInfoRenewal");
-  const subscriptionInfoCodeLabel = document.getElementById("subscriptionInfoCodeLabel");
-  const subscriptionInfoCode = document.getElementById("subscriptionInfoCode");
   const restoreCodeRevealValue = document.getElementById("restoreCodeRevealValue");
   const restoreCodeRevealContinueBtn = document.getElementById("restoreCodeRevealContinueBtn");
 
@@ -142,6 +148,9 @@
   }
 
   // --- free counter --------------------------------------------------------
+  // Tapping the pill (in either state) always goes through the Parent Gate
+  // now — see the click listener at the bottom — so subscription validity
+  // is never visible from a bare tap, only after the gate (Parents Hub).
 
   function updateFreeCounter() {
     parentModeBtn.hidden = config.planMode === "unlimited";
@@ -157,7 +166,9 @@
     const usage = readUsage(USAGE_KEY);
     const remaining = Math.max(0, config.freeDailyLimit - usage.count);
     freeCounter.hidden = false;
-    freeCounter.textContent = remaining + " din " + config.freeDailyLimit + " activități rămase azi";
+    freeCounter.textContent = t("freeCounterText")
+      .replace("{remaining}", remaining)
+      .replace("{total}", config.freeDailyLimit);
   }
 
   // --- gates called from app.js / draw.js ----------------------------------
@@ -182,11 +193,14 @@
   }
 
   function showDailyLimit() {
-    dailyLimitCount.textContent = String(config.freeDailyLimit);
+    dailyLimitText.textContent = t("dailyLimitText").replace("{count}", config.freeDailyLimit);
     QCUI.showScreen("dailyLimit");
   }
 
   // --- Parent Gate -----------------------------------------------------------
+  // A friction screen, not authentication — keeps young kids from reaching
+  // parent-facing screens by accident. Always leads to the Parents Hub now
+  // (see openParentsHub), which itself offers the paywall if not subscribed.
 
   function generateGateQuestion() {
     const a = 2 + Math.floor(Math.random() * 8);
@@ -205,18 +219,54 @@
 
   function checkParentGate() {
     if (parentGateInput.value.trim() === parentGateScreen.dataset.answer) {
-      openPaywall();
+      openParentsHub();
     } else {
       parentGateError.hidden = false;
       generateGateQuestion();
     }
   }
 
+  // --- Parents Hub -------------------------------------------------------
+  // Everything parent-related lives here, behind the gate: subscription
+  // status/renewal/restore code if entitled, or the paywall entry point if
+  // not. Replaces the old direct-tap subscriptionInfo screen.
+
+  function openParentsHub() {
+    const entitled = isEntitled();
+    parentsHubSubscribed.hidden = !entitled;
+    parentsHubNotSubscribed.hidden = entitled;
+
+    if (entitled) {
+      const ent = readEntitlement();
+      const ts = ent && ent.currentPeriodEnd;
+      parentsHubRenewal.textContent = ts
+        ? t("renewsOn") +
+          new Date(ts * 1000).toLocaleDateString(t("dateLocale"), {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })
+        : t("renewalUnavailable");
+      // The restore code is only ever known on the device that originally
+      // completed checkout (see confirmCheckoutFromUrl) — a device that got
+      // its entitlement via restore.js never receives it back, since only
+      // its hash is stored server-side. Show it here for easy re-copying if
+      // the family didn't write it down the first time; otherwise say so
+      // plainly rather than showing a blank field.
+      const hasCode = ent && typeof ent.restoreCode === "string" && ent.restoreCode;
+      parentsHubCodeLabel.hidden = !hasCode;
+      parentsHubCode.hidden = !hasCode;
+      if (hasCode) parentsHubCode.textContent = ent.restoreCode;
+    }
+
+    QCUI.showScreen("parentsHub");
+  }
+
   // --- Paywall ---------------------------------------------------------------
 
   function openPaywall() {
-    paywallMonthlyPrice.textContent = config.pricing.monthly + " " + config.pricing.currency + "/lună";
-    paywallYearlyPrice.textContent = config.pricing.yearly + " " + config.pricing.currency + "/an";
+    paywallMonthlyPrice.textContent = config.pricing.monthly + " " + config.pricing.currency + t("perMonth");
+    paywallYearlyPrice.textContent = config.pricing.yearly + " " + config.pricing.currency + t("perYear");
     paywallStatus.hidden = true;
     paywallMonthlyBtn.disabled = false;
     paywallYearlyBtn.disabled = false;
@@ -225,7 +275,7 @@
 
   async function startCheckout(plan) {
     paywallStatus.hidden = false;
-    paywallStatus.textContent = "Un moment...";
+    paywallStatus.textContent = t("loading");
     paywallMonthlyBtn.disabled = true;
     paywallYearlyBtn.disabled = true;
     try {
@@ -239,35 +289,10 @@
       if (!data.url) throw new Error("checkout_no_url");
       window.location.href = data.url;
     } catch (e) {
-      paywallStatus.textContent = "Nu am putut porni plata. Încearcă din nou.";
+      paywallStatus.textContent = t("checkoutFailed");
       paywallMonthlyBtn.disabled = false;
       paywallYearlyBtn.disabled = false;
     }
-  }
-
-  // --- subscription status (renewal date) -----------------------------------
-
-  function openSubscriptionInfo() {
-    const ent = readEntitlement();
-    const ts = ent && ent.currentPeriodEnd;
-    subscriptionInfoRenewal.textContent = ts
-      ? "Se reînnoiește pe " + new Date(ts * 1000).toLocaleDateString("ro-RO", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        })
-      : "Data reînnoirii nu este disponibilă momentan.";
-    // The restore code is only ever known on the device that originally
-    // completed checkout (see confirmCheckoutFromUrl) — a device that got
-    // its entitlement via restore.js never receives it back, since only its
-    // hash is stored server-side. Show it here for easy re-copying if the
-    // family didn't write it down the first time; otherwise say so plainly
-    // rather than showing a blank field.
-    const hasCode = ent && typeof ent.restoreCode === "string" && ent.restoreCode;
-    subscriptionInfoCodeLabel.hidden = !hasCode;
-    subscriptionInfoCode.hidden = !hasCode;
-    if (hasCode) subscriptionInfoCode.textContent = ent.restoreCode;
-    QCUI.showScreen("subscriptionInfo");
   }
 
   // --- restore purchase by email + saved code -------------------------------
@@ -298,7 +323,7 @@
     if (!email || !code) return;
     restoreError.hidden = true;
     restoreStatus.hidden = false;
-    restoreStatus.textContent = "Un moment...";
+    restoreStatus.textContent = t("loading");
     restoreSubmitBtn.disabled = true;
     try {
       const res = await fetch("/api/restore", {
@@ -316,8 +341,7 @@
           currentPeriodEnd: data.currentPeriodEnd,
           // Not returned by restore.js (only the code's hash is stored
           // server-side, never recoverable) — a device that got entitlement
-          // this way just won't have a code to show later on
-          // subscriptionInfo; see the hasCode check there.
+          // this way just won't have a code to show later in Parents Hub.
           restoreCode: null,
           checkedAt: Date.now(),
         });
@@ -428,11 +452,14 @@
   parentGateInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") checkParentGate();
   });
+  parentsHubBackBtn.addEventListener("click", () => QCUI.showScreen("start"));
+  parentsHubUpgradeBtn.addEventListener("click", openPaywall);
+  parentsHubRestoreBtn.addEventListener("click", openRestore);
   paywallBackBtn.addEventListener("click", () => QCUI.showScreen("start"));
   paywallMonthlyBtn.addEventListener("click", () => startCheckout("monthly"));
   paywallYearlyBtn.addEventListener("click", () => startCheckout("yearly"));
   paywallRestoreBtn.addEventListener("click", openRestore);
-  restoreBackBtn.addEventListener("click", () => QCUI.showScreen("paywall"));
+  restoreBackBtn.addEventListener("click", () => QCUI.showScreen("parentsHub"));
   restoreSubmitBtn.addEventListener("click", submitRestore);
   restoreEmailInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") submitRestore();
@@ -443,11 +470,9 @@
   restoreCodeRevealContinueBtn.addEventListener("click", () => QCUI.showScreen("start"));
   freeCounter.addEventListener("click", () => {
     if (config.planMode === "unlimited") return;
-    if (isEntitled()) openSubscriptionInfo();
-    else openParentGate();
+    openParentGate();
   });
   parentModeBtn.addEventListener("click", openParentGate);
-  subscriptionInfoBackBtn.addEventListener("click", () => QCUI.showScreen("start"));
 
   window.LIMIT = { tryConsume, tryConsumeAi, showDailyLimit };
 

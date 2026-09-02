@@ -1,8 +1,10 @@
-// Seed challenge bank. Silly on-camera dares for ages 5-10, in Romanian.
-// Each item is { text, seconds }. seconds > 0 shows a countdown ring on the
-// card that the kid starts by tapping it (10-30s range); seconds === 0 means
-// no timer at all (open-ended or one-shot challenge).
-window.CHALLENGES = [
+// Seed challenge bank. Silly on-camera dares for ages 5-10. Each item is
+// { text, seconds }. seconds > 0 shows a countdown ring on the card that the
+// kid starts by tapping it (10-30s range); seconds === 0 means no timer at
+// all (open-ended or one-shot challenge). i18n.js picks _RO or _EN at load
+// time based on the active language — keep both arrays the same length and
+// order so a given index means the same challenge in either language.
+window.CHALLENGES_RO = [
   { text: "Dansează cel mai haios dans al tău!", seconds: 30 },
   { text: "Fă o mișcare de breakdance și îngheață ca o statuie!", seconds: 10 },
   { text: "Fredonează un cântec cunoscut!", seconds: 20 },
@@ -63,4 +65,67 @@ window.CHALLENGES = [
   { text: "Imită cât mai bine un prezentator de vreme!", seconds: 0 },
   { text: "Inventează un dans nou și dă-i un nume!", seconds: 0 },
   { text: "Arată cea mai mare bucurie posibilă, fără cuvinte!", seconds: 0 },
+];
+
+window.CHALLENGES_EN = [
+  { text: "Dance your silliest dance ever!", seconds: 30 },
+  { text: "Do a breakdance move and freeze like a statue!", seconds: 10 },
+  { text: "Hum a song everyone knows!", seconds: 20 },
+  { text: "Beatbox as loud as you can!", seconds: 20 },
+  { text: "Whistle a tune everyone knows!", seconds: 20 },
+  { text: "Act like a broken robot!", seconds: 15 },
+  { text: "Copy the sound and walk of a monkey!", seconds: 15 },
+  { text: "Draw a dog as fast as you can!", seconds: 20 },
+  { text: "Draw a funny face!", seconds: 20 },
+  { text: "Make the weirdest face and hold it!", seconds: 10 },
+  { text: "Stand on one leg like a flamingo!", seconds: 15 },
+  { text: "Meow like an angry cat!", seconds: 10 },
+  { text: "Bark like a happy puppy!", seconds: 10 },
+  { text: "Play air guitar like a rock star!", seconds: 20 },
+  { text: "Laugh your weirdest laugh!", seconds: 10 },
+  { text: "Waddle across the room like a duck!", seconds: 15 },
+  { text: "Walk backwards like a crab!", seconds: 15 },
+  { text: "Do the slowest moonwalk ever!", seconds: 15 },
+  { text: "Give a sports commentary on everything you're doing right now!", seconds: 25 },
+  { text: "Talk like an alien!", seconds: 15 },
+  { text: "Hop around the room like a kangaroo!", seconds: 15 },
+  { text: "Do the slowest karate move ever!", seconds: 10 },
+  { text: "Sing the alphabet like you're really upset!", seconds: 20 },
+  { text: "Act like a news anchor!", seconds: 20 },
+  { text: "Impersonate an angry teacher!", seconds: 15 },
+  { text: "Make race car sounds!", seconds: 10 },
+  { text: "Pretend to swim, but on dry land!", seconds: 15 },
+  { text: "Do a goofy commercial for a banana!", seconds: 20 },
+  { text: "Talk super, super slowly, like in slow motion!", seconds: 15 },
+  { text: "Do the loudest monster voice you can!", seconds: 10 },
+  { text: "Hold a silly yoga pose!", seconds: 15 },
+  { text: "Strike your best superhero pose!", seconds: 10 },
+  { text: "Count to 10 in the weirdest voice!", seconds: 10 },
+  { text: "Act like a robot breaking down at the end!", seconds: 15 },
+  { text: "Act like a cat washing itself!", seconds: 10 },
+  { text: "Say as fast as you can: red lorry, yellow lorry, red lorry, yellow lorry!", seconds: 10 },
+  { text: "Tell the funniest joke you know!", seconds: 0 },
+  { text: "Impersonate your favorite zoo animal!", seconds: 0 },
+  { text: "Draw a friendly monster!", seconds: 0 },
+  { text: "Invent a secret handshake!", seconds: 0 },
+  { text: "Say your name backwards, letter by letter!", seconds: 0 },
+  { text: "Impersonate a teacher as well as you can!", seconds: 0 },
+  { text: "Make up a new, funny name for yourself!", seconds: 0 },
+  { text: "Show how you walk when you're super, super tired!", seconds: 0 },
+  { text: "Show how you rush to the bathroom when you really need to go!", seconds: 0 },
+  { text: "Sing the alphabet!", seconds: 0 },
+  { text: "Take a big theatrical bow!", seconds: 0 },
+  { text: "Invent a funny name for an imaginary pet!", seconds: 0 },
+  { text: "Say what you'd eat if you were a dinosaur, like a dinosaur!", seconds: 0 },
+  { text: "Sign your autograph in the air like you're famous!", seconds: 0 },
+  { text: "Show off your proudest red-carpet walk!", seconds: 0 },
+  { text: "Make the most serious face you can, without laughing!", seconds: 0 },
+  { text: "Invent a funny nickname for your best friend!", seconds: 0 },
+  { text: "Show your morning routine, but in slow motion!", seconds: 0 },
+  { text: "Show the biggest reaction to an amazing gift!", seconds: 0 },
+  { text: "Make up a short poem on the spot!", seconds: 0 },
+  { text: "Show how you'd walk if you had clown shoes on!", seconds: 0 },
+  { text: "Impersonate a weather presenter!", seconds: 0 },
+  { text: "Invent a new dance move and give it a name!", seconds: 0 },
+  { text: "Show the biggest joy you can, with no words!", seconds: 0 },
 ];

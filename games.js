@@ -1,7 +1,9 @@
-// Seed game bank: traditional Romanian children's games for ages 6-10.
+// Seed game bank: traditional games for ages 6-10.
 // Each item is { id, name, icon, players, description, steps: [{ icon, text }] }.
 // `icon` keys reference <symbol id="icon-KEY"> defined in the sprite in index.html.
-window.GAMES = [
+// i18n.js picks _RO or _EN at load time based on the active language — ids
+// stay the same across both so a game keeps the same identity either way.
+window.GAMES_RO = [
   {
     id: "leapsa",
     name: "Leapșa",
@@ -169,6 +171,178 @@ window.GAMES = [
       { icon: "standing", text: "El trebuie să mimeze cuvântul doar prin gesturi, fără să vorbească sau să scoată sunete." },
       { icon: "seek", text: "Echipa lui încearcă să ghicească cuvântul cât mai repede, strigând răspunsuri." },
       { icon: "swap", text: "Cine ghicește corect mimează următorul cuvânt sau se schimbă rândul la cealaltă echipă!" },
+    ],
+  },
+];
+
+window.GAMES_EN = [
+  {
+    id: "leapsa",
+    name: "Tag",
+    icon: "tag-touch",
+    players: "3 or more kids",
+    description: "The simplest chasing game: whoever's \"it\" has to tag someone else to pass it on.",
+    steps: [
+      { icon: "point", text: "One kid is picked to be \"it\" first." },
+      { icon: "run", text: "Everyone else runs off in every direction." },
+      { icon: "tag-touch", text: "The kid who's \"it\" runs around trying to tag someone else." },
+      { icon: "swap", text: "Whoever gets tagged becomes the new \"it\" and the game starts again!" },
+    ],
+  },
+  {
+    id: "vatia",
+    name: "Hide and Seek",
+    icon: "hide",
+    players: "3 or more kids",
+    description: "One kid counts with their eyes closed while everyone else finds the best hiding spot.",
+    steps: [
+      { icon: "count", text: "One kid closes their eyes and counts to 20 out loud." },
+      { icon: "hide", text: "Everyone else hides quickly while they count." },
+      { icon: "seek", text: "Once they finish counting, they go looking for everyone." },
+      { icon: "tag-touch", text: "The first kid found is the one who counts next time!" },
+    ],
+  },
+  {
+    id: "sotron",
+    name: "Hopscotch",
+    icon: "grid",
+    players: "1 or more kids, taking turns",
+    description: "Hop on one foot over numbered squares drawn on the ground.",
+    steps: [
+      { icon: "grid", text: "Draw a hopscotch grid of numbered squares on the ground with chalk." },
+      { icon: "throw", text: "Toss a small stone onto square number 1." },
+      { icon: "hop", text: "Hop on one foot over the squares, without stepping on the lines." },
+      { icon: "turn", text: "On the way back, pick up the stone and move on to the next number!" },
+    ],
+  },
+  {
+    id: "baba-oarba",
+    name: "Blind Man's Buff",
+    icon: "blindfold",
+    players: "4 or more kids",
+    description: "One kid is blindfolded and has to catch and guess who's who, by touch alone.",
+    steps: [
+      { icon: "blindfold", text: "One kid is blindfolded with a scarf." },
+      { icon: "spin", text: "They're spun around gently a few times, so they get a little dizzy." },
+      { icon: "reach", text: "Everyone else moves around them quietly while they try to catch someone." },
+      { icon: "reach", text: "If they catch someone and guess their name, that kid becomes the new blindfolded one!" },
+    ],
+  },
+  {
+    id: "statuile",
+    name: "Statues",
+    icon: "freeze",
+    players: "3 or more kids",
+    description: "Everyone runs toward the kid \"in charge\", but has to freeze like a statue when they turn around.",
+    steps: [
+      { icon: "wall", text: "One kid faces a wall and shouts \"1, 2, 3, stop!\"." },
+      { icon: "run", text: "While they count, everyone else runs eagerly toward them." },
+      { icon: "freeze", text: "When they say \"stop\", they spin around fast — everyone must freeze instantly!" },
+      { icon: "out", text: "Anyone who moves goes back to start. First one to reach the wall wins!" },
+    ],
+  },
+  {
+    id: "ratele-vanatori",
+    name: "Ducks and Hunters",
+    icon: "throw",
+    players: "6 or more kids",
+    description: "The \"hunters\" form a circle and try to tag the \"ducks\" with a soft ball, rolled along the ground.",
+    steps: [
+      { icon: "group-circle", text: "Half the kids, the \"hunters\", form a big circle." },
+      { icon: "standing", text: "The rest, the \"ducks\", stand inside the circle." },
+      { icon: "throw", text: "The hunters roll a soft ball along the ground to tag the ducks." },
+      { icon: "dodge", text: "The ducks run and dodge; whoever gets hit is out, then swap roles!" },
+    ],
+  },
+  {
+    id: "scaune-muzicale",
+    name: "Musical Chairs",
+    icon: "chair",
+    players: "4 or more kids",
+    description: "Chairs are set up in a circle, one fewer than the number of kids, and everyone dances to music.",
+    steps: [
+      { icon: "chair", text: "Set up the chairs in a circle, one fewer than the number of kids." },
+      { icon: "music", text: "Everyone dances around the chairs while the music plays." },
+      { icon: "freeze", text: "When the music stops suddenly, everyone races to sit on a chair!" },
+      { icon: "out", text: "Whoever's left standing is out; remove a chair and keep going!" },
+    ],
+  },
+  {
+    id: "telefonul-fara-fir",
+    name: "Telephone",
+    icon: "whisper",
+    players: "4 or more kids",
+    description: "Kids whisper a message from ear to ear, all the way down the line.",
+    steps: [
+      { icon: "chain-line", text: "The kids sit in a line or circle." },
+      { icon: "whisper", text: "The first kid whispers a short sentence into the next kid's ear." },
+      { icon: "ear", text: "Each kid whispers on exactly what they heard, without saying it out loud." },
+      { icon: "laugh", text: "The last kid says out loud what they heard — usually it's totally different, and that's the fun part!" },
+    ],
+  },
+  {
+    id: "stafeta",
+    name: "Relay Race",
+    icon: "baton-pass",
+    players: "4 or more kids, in teams",
+    description: "Kids split into teams and take turns running, handing an object off to their next teammate.",
+    steps: [
+      { icon: "group-circle", text: "Split the kids into two or more equal teams." },
+      { icon: "chain-line", text: "Each team lines up behind the starting line." },
+      { icon: "run", text: "The first kid runs to a marker and races back." },
+      { icon: "baton-pass", text: "They hand the baton to the next teammate — first team to finish wins!" },
+    ],
+  },
+  {
+    id: "frigul-fierbinte",
+    name: "Hot and Cold",
+    icon: "hidden-object",
+    players: "2 or more kids",
+    description: "An object is hidden, and everyone else searches for it guided by \"hot\" or \"cold\" hints.",
+    steps: [
+      { icon: "hidden-object", text: "One kid hides a small object while everyone else isn't looking." },
+      { icon: "seek", text: "Everyone else starts searching the room for the object." },
+      { icon: "hot", text: "The kid who hid it says \"hot\" when someone gets close to it." },
+      { icon: "cold", text: "...and \"cold\" when they move away, until someone finds it!" },
+    ],
+  },
+  {
+    id: "seful-zice",
+    name: "Simon Says",
+    icon: "point",
+    players: "3 or more kids",
+    description: "A \"leader\" gives commands, but everyone else only follows them if \"Simon says\" came first.",
+    steps: [
+      { icon: "point", text: "One kid is picked as \"Simon\" and gives commands, like \"Simon says: hop on one foot!\"." },
+      { icon: "standing", text: "Everyone else only follows the command if Simon said \"Simon says\" first." },
+      { icon: "freeze", text: "If Simon gives a command without \"Simon says\", nobody should do it!" },
+      { icon: "out", text: "Whoever slips up is out — the last kid standing becomes the new Simon!" },
+    ],
+  },
+  {
+    id: "vad-vad",
+    name: "I Spy",
+    icon: "seek",
+    players: "2 or more kids",
+    description: "One kid picks an object in the room in their mind, and everyone else guesses it by its color.",
+    steps: [
+      { icon: "standing", text: "One kid says out loud: \"I spy with my little eye!\", and everyone else asks: \"What do you spy?\"." },
+      { icon: "point", text: "They answer: \"Something... the color red!\" (for example), without saying what it is." },
+      { icon: "seek", text: "Everyone else looks around the room, trying to guess the object of that color." },
+      { icon: "swap", text: "Whoever guesses right picks the next object and the game continues!" },
+    ],
+  },
+  {
+    id: "mima",
+    name: "Charades",
+    icon: "standing",
+    players: "4 or more kids, in teams",
+    description: "One kid acts out a secret word using only gestures, no words, while their team guesses.",
+    steps: [
+      { icon: "whisper", text: "One kid gets a secret word whispered to them — an animal, a job, an object." },
+      { icon: "standing", text: "They have to act out the word using only gestures, no talking or sounds." },
+      { icon: "seek", text: "Their team tries to guess the word as fast as they can, shouting out answers." },
+      { icon: "swap", text: "Whoever guesses right acts out the next word, or it's the other team's turn!" },
     ],
   },
 ];
