@@ -1215,15 +1215,20 @@ go/no-go decision (its own AC says so explicitly).
       exactly — no forgotten secret, no leftover test-mode value live in
       production. _Verified: ______ by: _______
 - [ ] **Live Prices exist and the paywall shows them.** ⚠ **Note on
-      epics.md's own AC text:** Story 9.3's AC in `epics.md` literally
-      names "yearly 99 RON and monthly 14.99 RON" — those figures are
-      STALE. The actual, deliberate, currently-committed pricing (confirmed
-      against `docs/business-analysis.md`'s own explicit recommendation,
-      "Keep 19.99 RON/month and 149 RON/year," and `wrangler.jsonc`'s
-      committed `PRICE_MONTHLY_RON: "19.99"` / `PRICE_YEARLY_RON: "149"`)
-      is **19.99 RON/month and 149 RON/year** — verify THESE two live
-      Stripe Prices exist and that the paywall shows exactly these amounts,
-      not the epics.md text's stale figures. _Verified: ______ by: _______
+      epics.md's own AC text:** Story 9.3's AC in `epics.md` names "yearly
+      99 RON and monthly 14.99 RON" — the yearly figure there (99) is
+      STALE (the real yearly price is 149 RON). The monthly figure (14.99)
+      is, as of 2026-09-25, actually correct — the owner repriced Monthly
+      to 14.99 RON, superseding `docs/business-analysis.md`'s earlier
+      "keep 19.99" recommendation (that doc needs updating to match, along
+      with the addendum and `docs/promotion-checklist.md`'s copy, both of
+      which still reference 19.99 — not yet done as of this checklist).
+      There is no longer a `PRICE_MONTHLY_RON`/`PRICE_YEARLY_RON` var in
+      `wrangler.jsonc` to cross-check against (removed 2026-09-25, unread
+      by any code) — the only source of truth for the real committed price
+      now is a live `/api/config` check or the Stripe dashboard directly.
+      Verify the live Stripe Prices show **14.99 RON/month and 149
+      RON/year** on the paywall. _Verified: ______ by: _______
 - [ ] **`node scripts/check-public.mjs <production URL>` passes** against
       the real deployed domain (§ "AD-9"/Story 4.1's own check — confirms
       no server file, doc, or script is served, and the real client files

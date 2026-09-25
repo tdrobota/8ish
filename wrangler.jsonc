@@ -93,27 +93,39 @@
     "FREE_DAILY_LIMIT": "10",
     "FEATURE_FRIEND_MODE": "false",
     "FEATURE_FAMILY_MODE": "false",
-    "PRICE_MONTHLY_RON": "19.99",
-    "PRICE_YEARLY_RON": "149",
     "PRICE_CURRENCY": "RON",
+    // No hand-set PRICE_MONTHLY_RON/PRICE_YEARLY_RON vars here (removed
+    // 2026-09-25) -- Story 6-5 already moved the paywall's displayed price
+    // to live Stripe data (see functions/api/config.js), and grep confirms
+    // no code anywhere ever reads either var, so a second, hand-maintained
+    // copy of the price only risked drifting from what Stripe actually
+    // charges (which is exactly what happened, see below) for zero benefit.
+    // Stripe is now the only source of truth for these amounts -- to check
+    // the real price, hit /api/config or the Stripe dashboard, not this file.
+    //
     // Stripe LIVE-mode Price IDs (price_...), not secret — these only
     // work paired with a live STRIPE_SECRET_KEY (see README "Go-live
     // checklist"); a test-mode key will reject them and vice versa.
     //
-    // STRIPE_PRICE_MONTHLY updated 2026-09-25: the original Price
-    // (price_1UBGYiLB8ccn9aOAwgO14piO) couldn't be edited (Stripe Prices
-    // are immutable once created — a price change always means archiving
-    // the old one and creating a new one), so the owner created a new
-    // Monthly Price and this now points at it. Safe to swap by ID alone:
-    // functions/api/config.js fetches the real displayed price live from
-    // Stripe by this exact Price id (unit_amount, cached in STATE_KV as
-    // `price:<this id>` for ~a day) — a new id is simply a fresh cache key,
-    // so the paywall picks up the new amount on its very next request,
-    // with no stale-cache risk from the id change itself. PRICE_MONTHLY_RON
-    // above is NOT read by any code (Story 6-5 moved pricing display to
-    // live Stripe data) and was intentionally left unchanged here — update
-    // it too if you want it to stop reading a possibly-stale number.
-    "STRIPE_PRICE_MONTHLY": "price_1UJZ8MLB8ccn9aOA3Tkj4ESY",
+    // STRIPE_PRICE_MONTHLY history, 2026-09-25 (same day, three values):
+    // 1) a commit briefly pointed this at "price_1UJZ8MLB8ccn9aOA3Tkj4ESY",
+    //    described in that commit's own message as a fresh Price the owner
+    //    created to replace the original. That id was never real — it
+    //    didn't exist in Stripe under either mode — so
+    //    functions/api/config.js's Stripe lookup 404'd on every request and
+    //    the paywall silently showed no monthly price (readPrice() fails
+    //    closed to `null` on any Stripe error, by design, so this never
+    //    crashed the endpoint, it just quietly never displayed).
+    // 2) reverted to the original "price_1UBGYiLB8ccn9aOAwgO14piO" once the
+    //    owner unarchived it in the Stripe dashboard and confirmed it live.
+    // 3) the owner then created and priced a genuine new live-mode Monthly
+    //    Price at 14.99 RON and pointed this at it instead — confirmed
+    //    resolving for real via a live /api/config check, and confirmed by
+    //    the owner as the real, intended price going forward (superseding
+    //    docs/business-analysis.md's earlier "keep 19.99" recommendation —
+    //    that doc and docs/runbook.md's go-live checklist still need
+    //    updating to match; tracked, not yet done as of this comment).
+    "STRIPE_PRICE_MONTHLY": "price_1UJccQLB8ccn9aOAHFj6cIOp",
     "STRIPE_PRICE_YEARLY": "price_1UBGYiLB8ccn9aOA5ACoY5Oe",
     // The Spend Governor's emergency Kill Switch (Story 7-4, AD-14) --
     // functions/lib/governor-config.js checks this BEFORE any KV call:
