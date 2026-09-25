@@ -7039,7 +7039,15 @@ check("wrangler.jsonc: declares the FUNNEL Analytics Engine dataset binding, pur
   assert.equal(parsed.name, "8ish-plus");
   assert.ok(Array.isArray(parsed.kv_namespaces) && parsed.kv_namespaces.some((k) => k.binding === "STATE_KV"));
   assert.ok(parsed.durable_objects && parsed.durable_objects.bindings.some((b) => b.name === "GOVERNOR"));
-  assert.equal(parsed.vars.AI_ENABLED, "false");
+  // AI_ENABLED's own expected value tracks the owner's real release state,
+  // not a fixed literal -- it was "false" pre-launch (Story 7.7's release
+  // gate) and became "true" 2026-09-25 once the owner deployed, ran a real
+  // smoke test, and asked for "true" to be the committed default (see
+  // wrangler.jsonc's own comment on this var). This assertion exists to
+  // prove Story 8.1's build didn't accidentally touch it while adding the
+  // FUNNEL binding, not to pin its value -- update the expected string
+  // here (and nowhere else in this check) whenever that real value changes.
+  assert.equal(parsed.vars.AI_ENABLED, "true");
 });
 
 // ------------------------------------------------------------------ Story 8-2: functions/api/events.js (POST /api/e)
