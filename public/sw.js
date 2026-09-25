@@ -17,7 +17,7 @@
 //
 // scripts/check-sw.mjs simulates this worker and proves each rule. It is run by
 // hand until Epic 4.4 wires it into the pipeline: node scripts/check-sw.mjs
-const CACHE_NAME = "qcards-v27"; // bumped: draw mode's 30s timer removed (index.html/style.css/prompts.js/draw.js all changed)
+const CACHE_NAME = "qcards-v28"; // bumped: draw prompt bank rewritten for simpler/quicker-to-sketch subjects (prompts.js)
 
 const PRECACHE_URLS = [
   "./",
