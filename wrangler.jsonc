@@ -1,72 +1,152 @@
 {
-  "name": "8ishqa",
+  // The old `8ishqa` Worker (the kid's own always-unlimited link) is retired
+  // from this repo as of Epic 4 Story 4.2. It keeps running its last
+  // deployed code so that link keeps working; it must not be redeployed or
+  // reconfigured from this repo before Epic 9 deletes it (see
+  // _bmad-output/implementation-artifacts/epic-4-context.md).
+  "name": "8ish-plus",
   "compatibility_date": "2026-08-15",
   "main": "worker.js",
   "observability": {
-    "enabled": true
+    "enabled": true,
+    // Disables Cloudflare's automatic per-request invocation log (which
+    // otherwise records the full request, response and metadata, including
+    // the URL) while `enabled: true` keeps this app's own event-code
+    // console.* logs flowing to `wrangler tail` and the dashboard. Per
+    // Cloudflare's Workers Logs docs (developers.cloudflare.com/workers/
+    // observability/logs/workers-logs/), the nested field is
+    // observability.logs.invocation_logs.
+    "logs": {
+      "invocation_logs": false
+    }
   },
   "assets": {
-    "directory": "."
+    "directory": "./public"
   },
   "ai": {
     "binding": "AI"
   },
+  // Custom Domains (not legacy Routes): wrangler provisions the DNS
+  // record and TLS certificate automatically on deploy — no manual
+  // dashboard step needed. Both the apex and www point at the same
+  // Worker so visiting either address works (bare 8ish.app was 404ing
+  // before this — no route existed for it, only www.8ish.app).
+  "routes": [
+    { "pattern": "www.8ish.app", "custom_domain": true },
+    { "pattern": "8ish.app", "custom_domain": true }
+  ],
+  // The KV namespace id below is unchanged from before this story — only the
+  // binding name changed (COOLDOWN_KV -> STATE_KV). A pure rename; no data
+  // migration needed.
   "kv_namespaces": [
     {
-      "binding": "COOLDOWN_KV",
+      "binding": "STATE_KV",
       "id": "54b762d32d854a9bba9604472c4dc93e"
     }
   ],
-  // Default deploy target (`npx wrangler deploy`, no --env): the kid's own
-  // link. Always unlimited — /api/config reports planMode "unlimited" here,
-  // which makes the free counter, Parent Gate and paywall never render (see
-  // monetize.js). Never set STRIPE_* secrets on this environment.
-  "vars": {
-    "PLAN_MODE": "unlimited"
+  // The Spend Governor (Story 7-2, AD-14/AD-22) — one SQLite-backed
+  // Durable Object holding every spend counter. `class_name: "Governor"`
+  // resolves against this Worker's own module graph: worker.js re-exports
+  // the class from functions/governor.js (see that file's header comment
+  // for why the class lives there and how the wiring works). No caller in
+  // this repo invokes the GOVERNOR binding yet — that's Story 7.5.
+  "durable_objects": {
+    "bindings": [{ "name": "GOVERNOR", "class_name": "Governor" }]
   },
-  // Monetized public deploy (`npx wrangler deploy --env plus`): same code,
-  // separate Worker/link, own env vars below plus Stripe secrets set via
-  // `npx wrangler secret put STRIPE_SECRET_KEY --env plus`.
-  "env": {
-    "plus": {
-      "name": "8ish-plus",
-      "main": "worker.js",
-      "assets": {
-        "directory": "."
-      },
-      "ai": {
-        "binding": "AI"
-      },
-      // Custom Domains (not legacy Routes): wrangler provisions the DNS
-      // record and TLS certificate automatically on deploy — no manual
-      // dashboard step needed. Both the apex and www point at the same
-      // Worker so visiting either address works (bare 8ish.app was 404ing
-      // before this — no route existed for it, only www.8ish.app).
-      "routes": [
-        { "pattern": "www.8ish.app", "custom_domain": true },
-        { "pattern": "8ish.app", "custom_domain": true }
-      ],
-      "kv_namespaces": [
-        {
-          "binding": "COOLDOWN_KV",
-          "id": "54b762d32d854a9bba9604472c4dc93e"
-        }
-      ],
-      "vars": {
-        "PLAN_MODE": "free",
-        "FREE_DAILY_LIMIT": "10",
-        "FREE_AI_LIMIT": "1",
-        "FEATURE_FRIEND_MODE": "false",
-        "FEATURE_FAMILY_MODE": "false",
-        "PRICE_MONTHLY_RON": "19.99",
-        "PRICE_YEARLY_RON": "149",
-        "PRICE_CURRENCY": "RON",
-        // Stripe LIVE-mode Price IDs (price_...), not secret — these only
-        // work paired with a live STRIPE_SECRET_KEY (see README "Go-live
-        // checklist"); a test-mode key will reject them and vice versa.
-        "STRIPE_PRICE_MONTHLY": "price_1UBGYiLB8ccn9aOAwgO14piO",
-        "STRIPE_PRICE_YEARLY": "price_1UBGYiLB8ccn9aOA5ACoY5Oe"
-      }
-    }
+  // `new_sqlite_classes` (not `new_classes`) provisions SQLite storage for
+  // the class — required for `ctx.storage.sql` to exist at all. Per
+  // Cloudflare's Durable Objects migrations docs and this repo's installed
+  // wrangler's own config schema (node_modules/wrangler/config-schema.json,
+  // checked directly rather than assumed from memory — see this story's
+  // spec's Spec Change Log), migrations are additive-only and irreversible:
+  // a later migration can rename/delete/transfer a class, but can never
+  // retroactively change `Governor`'s storage backend away from SQLite. Tag
+  // names only need to be unique and ordered within this file; "v1" is
+  // simply the first one.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Governor"] }],
+  // Anonymous funnel counters (Story 8-1, AD-19) -- writes go through
+  // functions/lib/events.js's writeEvent(), the only caller of
+  // env.FUNNEL.writeDataPoint() in this repo. Exact syntax verified
+  // directly against this installed wrangler's own
+  // node_modules/wrangler/config-schema.json (same technique Story 7-2
+  // used for the Durable Object migration syntax above) rather than
+  // assumed from memory -- `dataset` is the real Analytics Engine dataset
+  // name Cloudflare stores the data under; `binding` is only the Worker-
+  // local name env.FUNNEL resolves to.
+  "analytics_engine_datasets": [{ "binding": "FUNNEL", "dataset": "funnel" }],
+  // Daily rollups (Story 8-4) -- fires worker.js's `scheduled(event, env,
+  // ctx)` handler at 03:00 UTC, well clear of the UTC-midnight boundary
+  // Analytics Engine's own write buffering needs to settle for "yesterday"
+  // to be a complete, stable day by the time this reads it. `triggers.crons`
+  // is the exact key, confirmed directly against this installed wrangler's
+  // own node_modules/wrangler/config-schema.json (`triggers.properties.crons`,
+  // an array of cron-expression strings) and against Cloudflare's Cron
+  // Triggers docs -- same verification technique prior stories used for the
+  // Durable Object migration and Analytics Engine dataset keys above.
+  "triggers": { "crons": ["0 3 * * *"] },
+  // false because this is the one production Worker: no preview deploys and
+  // no *.workers.dev address (AD-9).
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "PLAN_MODE": "free",
+    "FREE_DAILY_LIMIT": "10",
+    "FEATURE_FRIEND_MODE": "false",
+    "FEATURE_FAMILY_MODE": "false",
+    "PRICE_MONTHLY_RON": "19.99",
+    "PRICE_YEARLY_RON": "149",
+    "PRICE_CURRENCY": "RON",
+    // Stripe LIVE-mode Price IDs (price_...), not secret — these only
+    // work paired with a live STRIPE_SECRET_KEY (see README "Go-live
+    // checklist"); a test-mode key will reject them and vice versa.
+    "STRIPE_PRICE_MONTHLY": "price_1UBGYiLB8ccn9aOAwgO14piO",
+    "STRIPE_PRICE_YEARLY": "price_1UBGYiLB8ccn9aOA5ACoY5Oe",
+    // The Spend Governor's emergency Kill Switch (Story 7-4, AD-14) --
+    // functions/lib/governor-config.js checks this BEFORE any KV call:
+    // anything other than the literal string "true" (unset, "false", a
+    // typo) fails Image spend closed with zero I/O. Flipping this to
+    // "false" in the Cloudflare dashboard (Settings -> Variables) is the
+    // fastest of the epic's three kill-switch methods -- see
+    // docs/runbook.md's §1.2 for the WAF-rule backup and the drill
+    // procedure.
+    //
+    // Source Links (Story 8-3, AD-19 follow-on) -- a comma-separated list of
+    // short marketing names (e.g. "yt,ig"), each ^[a-z0-9-]{2,20}$, read by
+    // worker.js: GET /<name> for a name in this list writes one funnel
+    // counter (functions/lib/events.js's writeEvent(), "source_visit",
+    // <name>) and answers 302 to "/"; any other name is unaffected (falls
+    // through to the existing 404). scripts/check-config.mjs statically
+    // validates the regex and checks for a collision against a real public/
+    // top-level asset path or the reserved names "api"/"sw" before this can
+    // ship. Committed as "" (empty) -- real channel/video names are the
+    // owner's own marketing decision, added later per docs/runbook.md's
+    // "Source Links" section; this build invents none.
+    "SOURCE_LINKS": "",
+    // Daily rollups (Story 8-4) -- worker.js's scheduled() handler reads
+    // this to build the Analytics Engine SQL API's request URL. Not
+    // sensitive (a Cloudflare account id is an identifier, not a secret --
+    // same reasoning abuse-check.mjs's own --post-deploy mode already
+    // documents for this exact same var name in docs/runbook.md §10.2), so
+    // it belongs here as a plain var, unlike ANALYTICS_READ_TOKEN itself
+    // (a real secret, set only via `wrangler secret put`, never committed
+    // here -- see docs/runbook.md §1.10/§2.5). Committed as "" (empty) --
+    // the owner's own real Cloudflare account id; this build invents none
+    // (no live Cloudflare account exists in this session).
+    "CF_ACCOUNT_ID": "",
+    // Committed as "false" -- corrected from an earlier "true" default
+    // (Story 7-4's own build), which contradicted epics.md's own explicit
+    // release note for this epic: "stories 7.5 to 7.7 are deployed
+    // together, with AI_ENABLED = false until 7.7 ships (the new endpoint
+    // would otherwise answer not-yet-updated apps with an error)" -- and
+    // Story 7.7's own AC: "after the smoke test the owner flips AI_ENABLED
+    // to true". Nothing in this repo has been deployed at any point in
+    // Epic 7's build, so the earlier "true" default never had a real-world
+    // effect -- but leaving it that way in the committed file would have
+    // meant a deploy going out AI-enabled before the owner's own smoke
+    // test, skipping the safety gate this var exists to provide. Flipping
+    // this to "true" is the owner's own action, after deploying and
+    // running a real smoke test against the live endpoint -- never part of
+    // any story's own build.
+    "AI_ENABLED": "false"
   }
 }

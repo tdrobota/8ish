@@ -1,0 +1,11 @@
+{
+  "ceiling": 80,
+  "reserveShare": 0.5,
+  "freeSlices": 6,
+  "minGapSec": 30,
+  "freeGlobalGapSec": 20,
+  "freeDaily": 1,
+  "subscriberDaily": 10,
+  "mintPerHour": 20,
+  "aiEnabled": true
+}
