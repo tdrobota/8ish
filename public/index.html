@@ -406,9 +406,20 @@
     <div id="parentsHubNotSubscribed">
       <p class="info-text" data-i18n="parent.paywallHeadline">Activități nelimitate</p>
       <button id="parentsHubUpgradeBtn" class="btn-start btn-mode" type="button" data-i18n="parent.continueBtn">Continuă</button>
+      <!-- Moved inside parentsHubNotSubscribed 2026-09-25 (confirmed live:
+           an already-entitled parent saw this alongside their active
+           subscription info and Cancel button). It previously sat as a
+           sibling of both parentsHubSubscribed/parentsHubNotSubscribed,
+           and monetize.js's openParentsHub() only ever toggled THOSE two
+           divs' hidden state -- nothing ever hid this button for an
+           entitled parent, since it makes sense only for one who isn't
+           recognized as subscribed on this device yet. No JS change
+           needed: parentsHubNotSubscribed.hidden = entitled (already set
+           in openParentsHub()) now hides this along with the rest of that
+           section, the same way parentsHubSubscribed's own children never
+           needed individual hidden toggles for THIS purpose. -->
+      <button id="parentsHubRestoreBtn" class="text-link-btn" type="button" data-i18n="parent.alreadySubscribed">Am deja abonament</button>
     </div>
-
-    <button id="parentsHubRestoreBtn" class="text-link-btn" type="button" data-i18n="parent.alreadySubscribed">Am deja abonament</button>
   </div>
 
   <!-- 8ish+ paywall — Story 6.5: shows what's included and the renewal/
