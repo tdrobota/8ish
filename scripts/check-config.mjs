@@ -3616,7 +3616,7 @@ check("checkout.js: plan \"yearly\"/\"monthly\" select STRIPE_PRICE_YEARLY/MONTH
   assert.equal(postCalls[1].params.get("line_items[0][price]"), "price_monthly_id");
 });
 
-check("checkout.js: a valid session carries billing_mode[type]=classic, consent_collection[terms_of_service]=required, payment_method_collection=if_required, allow_promotion_codes, and locale/custom_text from legal.js (I/O matrix row + AD-17)", async () => {
+check("checkout.js: a valid session carries consent_collection[terms_of_service]=required, payment_method_collection=if_required, allow_promotion_codes, locale/custom_text from legal.js, and NEVER billing_mode (I/O matrix row + AD-17)", async () => {
   const { onRequestPost, postCalls, legal } = loadCheckout({ verifyImpl: async () => true });
   const res = await onRequestPost({ request: checkoutRequest({ plan: "yearly", turnstile: "tok", lang: "en" }), env: CHECKOUT_ENV });
   assert.equal(res.status, 200);
@@ -3625,7 +3625,14 @@ check("checkout.js: a valid session carries billing_mode[type]=classic, consent_
   const params = postCalls[0].params;
   assert.equal(postCalls[0].path, "checkout/sessions");
   assert.equal(params.get("mode"), "subscription");
-  assert.equal(params.get("billing_mode[type]"), "classic");
+  // billing_mode[type] removed 2026-09-25 -- confirmed live against a real
+  // Stripe account that Checkout Session creation rejects it as an unknown
+  // parameter under this app's pinned Stripe-Version (2025-03-31.basil,
+  // which predates billing_mode support entirely; see checkout.js's own
+  // comment on this var for the full story). Asserting its ABSENCE, not
+  // just leaving it unchecked, so a future edit can't silently reintroduce
+  // the exact 400 this fixed.
+  assert.equal(params.has("billing_mode[type]"), false);
   assert.equal(params.get("consent_collection[terms_of_service]"), "required");
   assert.equal(params.get("payment_method_collection"), "if_required");
   assert.equal(params.get("allow_promotion_codes"), "true");

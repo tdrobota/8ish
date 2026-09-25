@@ -328,10 +328,15 @@ template.
 
 - **Status:** mixed. `functions/api/checkout.js` (Story 6-4) is live today:
   it verifies a Turnstile token before any Stripe call, then creates the
-  Session with `billing_mode[type]=classic`,
-  `consent_collection[terms_of_service]=required`, and
+  Session with `consent_collection[terms_of_service]=required`, and
   `custom_text[terms_of_service_acceptance][message]` built from
-  `public/legal.js`'s `WAIVER_CONSENT` in the caller's language. The Waiver
+  `public/legal.js`'s `WAIVER_CONSENT` in the caller's language. (No longer
+  sends `billing_mode[type]=classic` — removed 2026-09-25, confirmed live
+  against a real Stripe account that Checkout Session creation rejects it
+  as an unknown parameter under this app's pinned Stripe-Version; classic
+  is already the automatic default below the API version where
+  `billing_mode` became a valid Checkout Session field at all — see
+  `checkout.js`'s own comment on this.) The Waiver
   wording itself is a **developer draft** (spec-6-4's Design Notes) — it is
   what a parent sees at checkout right now, but it is pending the owner's
   and Story 6.7's legal-review gate before this goes live for real money;

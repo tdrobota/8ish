@@ -18,7 +18,7 @@
 // own, and runs first — the same ordering (config check, then
 // human-check/auth, then real work) checkout-confirm.js/entitlement.js/
 // restore.js already use. The Session itself now also records the Waiver:
-// `billing_mode[type]=classic`, `consent_collection[terms_of_service]=required`,
+// `consent_collection[terms_of_service]=required`
 // and a `custom_text[terms_of_service_acceptance][message]` built from the
 // caller's language and public/legal.js's WAIVER_CONSENT — never a
 // duplicated inline string, so the exact wording a parent agrees to here
@@ -153,7 +153,21 @@ export async function onRequestPost({ request, env, ctx }) {
     success_url: `${env.ORIGIN}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${env.ORIGIN}/?checkout=cancelled`,
     allow_promotion_codes: "true",
-    "billing_mode[type]": "classic",
+    // No billing_mode[type] here (removed 2026-09-25) -- confirmed live
+    // against a real Stripe account that Checkout Session creation rejects
+    // it outright ("Received unknown parameter: billing_mode") under the
+    // Stripe-Version this app pins (lib/stripe.js's "2025-03-31.basil").
+    // The project's own architecture research already found why: Checkout
+    // Sessions only accept billing_mode starting at API version
+    // 2025-09-30.clover -- before that cutover (this pinned version
+    // included), every new subscription is created in classic mode
+    // automatically, with no way to request it explicitly. So this was
+    // never reachable: not a workaround, sending it was simply invalid for
+    // the version this app has always talked to Stripe in. Revisit only
+    // alongside a deliberate, separately-tested Stripe-Version bump (see
+    // that file's own comment on why that's never a silent drift) --
+    // AD-17's cancel_at_period_end-based cancel/resume logic
+    // (functions/api/subscription.js) already assumes classic mode.
     "consent_collection[terms_of_service]": "required",
     "custom_text[terms_of_service_acceptance][message]": consentMessage,
     locale: lang,
