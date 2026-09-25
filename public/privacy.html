@@ -17,7 +17,7 @@
       </div>
       <header class="policy-header">
         <h1>Politica de confidențialitate</h1>
-        <p class="policy-updated">Ultima actualizare: 2 septembrie 2026</p>
+        <p class="policy-updated">Ultima actualizare: 23 septembrie 2026</p>
       </header>
 
       <div class="policy-card policy-content">
@@ -43,9 +43,12 @@
         <h2>Modul Desenează (funcție AI)</h2>
         <p>
           Când un copil folosește modul Desenează, schița desenată este trimisă către un model de
-          inteligență artificială (procesat prin infrastructura Cloudflare Workers AI) pentru a genera
-          o versiune "adusă la viață" a desenului. Schița este folosită doar cât timp durează
-          procesarea — aplicația noastră nu o stochează permanent și nu o asociază cu nicio persoană.
+          inteligență artificială rulat prin infrastructura
+          <a href="https://developers.cloudflare.com/workers-ai/" target="_blank" rel="noopener">Cloudflare
+          Workers AI</a> pentru a genera o versiune "adusă la viață" a desenului, conform
+          <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">politicii de
+          confidențialitate a Cloudflare</a>. Schița este folosită doar cât timp durează procesarea —
+          aplicația noastră nu o stochează permanent și nu o asociază cu nicio persoană.
         </p>
 
         <h2>Abonamentul 8ish+</h2>
@@ -75,9 +78,9 @@
 
         <h2>Cookie-uri și stocare locală</h2>
         <p>
-          8ish nu folosește cookie-uri de urmărire, publicitate sau analiză — de fapt, nu folosește
-          deloc cookie-uri. Aplicația salvează local, în browser (localStorage), câteva informații
-          tehnice strict necesare funcționării: câte activități ai folosit azi (pentru limita zilnică
+          8ish nu folosește cookie-uri de urmărire sau publicitate — de fapt, nu folosește deloc
+          cookie-uri. Aplicația salvează local, în browser (localStorage), câteva informații tehnice
+          strict necesare funcționării: câte activități ai folosit azi (pentru limita zilnică
           gratuită), starea abonamentului 8ish+ (activ/inactiv, data reînnoirii, codul de recuperare
           dacă a fost emis pe acel dispozitiv) și limba aleasă (română/engleză). Fiind strict
           necesară funcționării aplicației, această stocare nu necesită un banner de consimțământ
@@ -86,11 +89,28 @@
           pot fi șterse oricând din setările browserului.
         </p>
 
+        <h2>Statistici anonime de utilizare</h2>
+        <p>
+          Pentru a înțelege cum este folosită aplicația la nivel general (nu individual), serverul
+          înregistrează zilnic <strong>numere agregate, complet anonime</strong>, pentru evenimente
+          precum: deschiderea aplicației, atingerea limitei zilnice gratuite, vizualizarea ecranului
+          de abonare, începerea plății, finalizarea plății, anularea abonamentului, și crearea,
+          refuzarea sau eșecul unei imagini generate în modul Desenează. Aceste statistici
+          <strong>nu conțin niciun identificator, cookie, amprentă digitală (fingerprint) sau adresă
+          IP</strong> și nu pot fi asociate cu un anumit client Stripe sau dispozitiv — sunt numai
+          numărători, nu evenimente individuale urmăribile. Sunt păstrate cel puțin 12 luni, sub
+          formă de totaluri zilnice pe eveniment, pentru a înțelege tendințe pe termen lung fără să
+          păstrăm date brute la nivel de persoană.
+        </p>
+
         <h2>Furnizori terți (subprocesatori)</h2>
         <ul>
           <li><strong>Cloudflare</strong> — găzduiește aplicația, procesează cererile către modelul
-            AI de desenat, și păstrează jurnale tehnice standard (loguri de operare, pentru
-            depanare și fiabilitate).</li>
+            AI de desenat, calculează statisticile anonime de mai sus, și păstrează jurnale tehnice
+            standard (loguri de operare, pentru depanare și fiabilitate).</li>
+          <li><strong>Cloudflare Turnstile</strong> — la plată și la recuperarea abonamentului,
+            verifică faptul că cererea vine de la o persoană reală, nu de la un program automatizat;
+            nu are scop de urmărire sau publicitate.</li>
           <li><strong>Stripe</strong> — procesează plățile și datele asociate abonamentului 8ish+.</li>
         </ul>
 
@@ -131,7 +151,7 @@
       </div>
       <header class="policy-header">
         <h1>Privacy Policy</h1>
-        <p class="policy-updated">Last updated: September 2, 2026</p>
+        <p class="policy-updated">Last updated: September 23, 2026</p>
       </header>
 
       <div class="policy-card policy-content">
@@ -157,10 +177,12 @@
 
         <h2>Draw mode (AI feature)</h2>
         <p>
-          When a child uses Draw mode, the sketch they drew is sent to an AI model (processed via
-          Cloudflare Workers AI infrastructure) to generate a "brought to life" version of the
-          drawing. The sketch is only used for the duration of processing — our app doesn't store it
-          permanently and doesn't associate it with any person.
+          When a child uses Draw mode, the sketch they drew is sent to an AI model run through
+          <a href="https://developers.cloudflare.com/workers-ai/" target="_blank" rel="noopener">Cloudflare
+          Workers AI</a> infrastructure to generate a "brought to life" version of the drawing, per
+          <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's
+          privacy policy</a>. The sketch is only used for the duration of processing — our app doesn't
+          store it permanently and doesn't associate it with any person.
         </p>
 
         <h2>The 8ish+ subscription</h2>
@@ -190,23 +212,38 @@
 
         <h2>Cookies and local storage</h2>
         <p>
-          8ish doesn't use tracking, advertising, or analytics cookies — in fact, it doesn't use
-          cookies at all. The app saves a few technical pieces of information locally, in your
-          browser (localStorage), that are strictly necessary for it to work: how many activities
-          you've used today (for the free daily limit), your 8ish+ subscription status
-          (active/inactive, renewal date, the recovery code if one was issued on that device), and
-          your chosen language (Romanian/English). Because this storage is strictly necessary for
-          the app to function, it doesn't require a consent banner under applicable law (the
-          ePrivacy Directive) — there's nothing tracking-related to accept or decline. This data
-          stays on your device, is never sent to us, and can be cleared any time from your browser
-          settings.
+          8ish doesn't use tracking or advertising cookies — in fact, it doesn't use cookies at all.
+          The app saves a few technical pieces of information locally, in your browser
+          (localStorage), that are strictly necessary for it to work: how many activities you've
+          used today (for the free daily limit), your 8ish+ subscription status (active/inactive,
+          renewal date, the recovery code if one was issued on that device), and your chosen
+          language (Romanian/English). Because this storage is strictly necessary for the app to
+          function, it doesn't require a consent banner under applicable law (the ePrivacy Directive)
+          — there's nothing tracking-related to accept or decline. This data stays on your device, is
+          never sent to us, and can be cleared any time from your browser settings.
+        </p>
+
+        <h2>Anonymous usage statistics</h2>
+        <p>
+          To understand how the app is used overall (not individually), the server records daily
+          <strong>aggregate, fully anonymous counts</strong> for events such as: the app being
+          opened, the free daily limit being reached, the subscription screen being viewed, checkout
+          starting, a purchase completing, a subscription being cancelled, and an image created,
+          declined, or failing in Draw mode. These statistics
+          <strong>store no identifier, cookie, fingerprint, or IP address</strong> and can't be
+          linked to a particular Stripe customer or device — they're counts only, never trackable
+          individual events. They're kept for at least 12 months, as daily totals per event, so we
+          can understand long-term trends without keeping raw, person-level data.
         </p>
 
         <h2>Third-party providers (subprocessors)</h2>
         <ul>
           <li><strong>Cloudflare</strong> — hosts the app, processes requests to the AI drawing
-            model, and keeps standard technical logs (operational logs, for debugging and
-            reliability).</li>
+            model, computes the anonymous statistics above, and keeps standard technical logs
+            (operational logs, for debugging and reliability).</li>
+          <li><strong>Cloudflare Turnstile</strong> — at checkout and subscription recovery, verifies
+            the request comes from a real person rather than an automated program; it serves no
+            tracking or advertising purpose.</li>
           <li><strong>Stripe</strong> — processes payments and the data associated with the 8ish+
             subscription.</li>
         </ul>

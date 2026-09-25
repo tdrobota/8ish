@@ -11,11 +11,6 @@
   const STROKE_COLOR = "#16171d"; // --ink
   const CANVAS_BG = "#ffffff";
 
-  // Not a real secret (it ships in public client JS) — just filters out
-  // generic scanners/bots hitting /api/transform blindly. Must match the
-  // literal in functions/api/transform.js.
-  const APP_TOKEN = "f73dc90199f1fa117ffc96c2ed278fc6";
-
   const drawPromptScreen = document.getElementById("drawPrompt");
   const drawCanvasScreen = document.getElementById("drawCanvas");
   const drawResultScreen = document.getElementById("drawResult");
@@ -35,9 +30,6 @@
   const drawCanvasPrompt = document.getElementById("drawCanvasPrompt");
   const drawSurface = document.getElementById("drawSurface");
   const drawCtx = drawSurface.getContext("2d");
-  const drawTimerRing = document.getElementById("drawTimerRing");
-  const drawTimerRingFg = document.getElementById("drawTimerRingFg");
-  const drawTimerNumber = document.getElementById("drawTimerNumber");
 
   const drawResultEndBtn = document.getElementById("drawResultEndBtn");
   const drawWaiting = document.getElementById("drawWaiting");
@@ -52,21 +44,32 @@
   const drawErrorMessage = document.getElementById("drawErrorMessage");
   const drawRetryBtn = document.getElementById("drawRetryBtn");
 
-  // Kid-friendly copy per failure kind (Design Notes), via i18n.js. Cooldown
-  // maps from a 429; every other non-200 (502/504/anything else) shares the
-  // generic provider/timeout message; a rejected fetch itself is "offline".
+  // Kid-friendly copy per server response code (Story 7.7 Design Notes), via
+  // i18n.js -- keyed by the response body's own error.code, not by HTTP
+  // status (a 429 alone covers three different codes that need different
+  // messages: daily_limit/wait/rate_limited). provider_error/timeout/
+  // human_check_failed/rate_limited all fold into the same generic
+  // "try again" bucket (the frozen spec's own resolved decision for
+  // rate_limited, which epics.md's AC doesn't name explicitly); a rejected
+  // fetch itself is "offline"; any other/unrecognized code (unauthorized,
+  // bad_request, not_configured, a malformed 200, ...) falls back to the
+  // same generic bucket via finishFailure()'s own `|| ...provider_error`.
   const RESULT_MESSAGE_KEYS = {
-    cooldown: "drawCooldown",
+    daily_limit: "drawDailyLimit",
+    wait: "drawWait",
+    resting: "drawResting",
     provider_error: "drawProviderError",
+    timeout: "drawProviderError",
+    human_check_failed: "drawProviderError",
+    rate_limited: "drawProviderError",
     offline: "drawOffline",
-    ai_limit: "drawAiLimit",
   };
 
   // In-memory only (mirrors app.js's session state: nothing here is ever persisted).
   let pool = [];
   let currentPrompt = null;
-  let started = false; // countdown has been tapped/started
-  let locked = false; // timer hit 0; canvas no longer drawable
+  let locked = false; // Termină! was tapped; canvas no longer drawable
+  let hasStrokes = false; // at least one stroke drawn this attempt (guards resize-repaint safety)
   let isDrawing = false;
   let lastPoint = null;
   let activePointerId = null; // the single pointer currently drawing; ignore all others
@@ -75,11 +78,12 @@
   let showingSketch = false; // drawResult success view: rendered art (false) vs. sketch (true)
   let inFlight = false; // a /api/transform request is currently pending
   let requestToken = 0; // bumped whenever the flow is abandoned, to drop stale in-flight responses
-
-  const ring = QCUI.createCountdownRing(
-    { ringButton: drawTimerRing, ringFg: drawTimerRingFg, number: drawTimerNumber },
-    { onComplete: handleComplete }
-  );
+  // Story 7.7: the promise enterDrawCanvas() started by calling
+  // window.LIMIT.getHumanToken("image") once, held here for submitTransform()
+  // to await -- never re-awaited a second time (a Turnstile token is
+  // single-use), see submitTransform()'s own comment.
+  let humanTokenPromise = null;
+  let waitCountdownTimer = null; // the "wait" result's live {seconds} countdown, cleared on cleanup
 
   // --- Prompt pool: same shuffle/pool pattern as app.js's drawNextIndex ---
 
@@ -155,11 +159,12 @@
   }
 
   function onPointerDown(event) {
-    if (!started || locked) return;
+    if (locked) return;
     // Ignore a second concurrent pointerdown (e.g. a resting palm) while one
     // pointer is already drawing — only the first pointer gets to draw.
     if (isDrawing) return;
     isDrawing = true;
+    hasStrokes = true; // canvas is no longer guaranteed blank — resize must stop repainting it
     activePointerId = event.pointerId;
     lastPoint = pointFromEvent(event);
     if (drawSurface.setPointerCapture) {
@@ -173,7 +178,7 @@
   }
 
   function onPointerMove(event) {
-    if (!started || locked || !isDrawing) return;
+    if (locked || !isDrawing) return;
     if (event.pointerId !== activePointerId) return;
     const point = pointFromEvent(event);
     drawCtx.beginPath();
@@ -223,26 +228,20 @@
     }
   }
 
-  function handleComplete() {
+  // The kid taps "Termină!" whenever they consider the drawing done — there
+  // is no timer to run out anymore (removed: kids weren't able to finish in
+  // the old fixed 30s window, and this button was already the intended way
+  // to submit early, so it's now the ONLY way to finish). `locked` guards
+  // against a double-tap firing this twice while the screen is transitioning.
+  function finishDrawing() {
+    if (locked) return;
     locked = true;
-    started = false;
     isDrawing = false;
     clearTimeout(resizeTimer); // a stale debounced resize must never fire on a locked canvas
     setDrawable(false);
     setClearEnabled(false);
-    drawFinishBtn.hidden = true;
     capturedImage = captureDownscaled();
     submitTransform();
-  }
-
-  // Kid taps "Termină!" before the timer runs out: stop the ring's own
-  // interval first (ring.reset(), not letting it reach 0) so its onComplete
-  // can't also fire handleComplete a second time, then run the exact same
-  // completion path as a natural timeout.
-  function finishEarly() {
-    if (!started || locked) return;
-    ring.reset();
-    handleComplete();
   }
 
   // --- Transform submit/result (Story 1.5) --------------------------------
@@ -252,6 +251,28 @@
   function stripDataUrlPrefix(dataUrl) {
     const commaIndex = dataUrl.indexOf(",");
     return commaIndex === -1 ? dataUrl : dataUrl.slice(commaIndex + 1);
+  }
+
+  // Story 7.7 (Design Notes): starts (or restarts) the held human-check
+  // promise. Called once on entering the canvas screen, and again by
+  // submitTransform() itself whenever no promise is currently held (a retry
+  // after a failure — a Turnstile token is single-use, so it must be re-run,
+  // never reused). window.LIMIT may not exist at all (see this file's header
+  // comment) — matches the window.LIMIT && ... pattern used everywhere else
+  // here. A rejection (not configured, expired, superseded, ...) resolves to
+  // null rather than propagating: the subscriber path never even looks at
+  // `turnstile`, and the free-device path already has its own friendly
+  // "human_check_failed" -> drawProviderError mapping for a genuinely
+  // missing/invalid token.
+  function refreshHumanToken() {
+    humanTokenPromise = window.LIMIT ? window.LIMIT.getHumanToken("image").catch(() => null) : Promise.resolve(null);
+  }
+
+  function clearWaitCountdown() {
+    if (waitCountdownTimer) {
+      clearInterval(waitCountdownTimer);
+      waitCountdownTimer = null;
+    }
   }
 
   function showResultSubState(state) {
@@ -341,43 +362,120 @@
     }
   }
 
-  function finishFailure(kind) {
+  // Story 7.7 (Design Notes): a short countdown from the server's own
+  // retryAfterSeconds, ticking down once a second via drawWait's {seconds}
+  // placeholder; the retry button stays disabled until it reaches 0, then
+  // re-enables — "a short countdown, then the retry button becomes usable
+  // again". Cleared by clearWaitCountdown() on cleanup/screen-exit/a new
+  // submit (see exitToStart/enterDrawPrompt/submitTransform).
+  function startWaitCountdown(seconds) {
+    let remaining = Math.max(1, Math.ceil(typeof seconds === "number" && seconds > 0 ? seconds : 1));
+    const render = () => {
+      drawErrorMessage.textContent = window.I18N.t("drawWait").replace("{seconds}", String(remaining));
+    };
+    showResultSubState("error");
+    inFlight = false;
+    drawRetryBtn.disabled = true;
+    render();
+    waitCountdownTimer = setInterval(() => {
+      remaining -= 1;
+      render();
+      if (remaining <= 0) {
+        clearWaitCountdown();
+        drawRetryBtn.disabled = false;
+      }
+    }, 1000);
+  }
+
+  // Story 8-2: a fire-and-forget, best-effort funnel signal -- never
+  // awaited, never surfacing a failure to the child, never blocking or
+  // gating the screen transition it accompanies. keepalive lets the
+  // request survive this function returning (and any screen change that
+  // follows) immediately after. A rejected fetch (offline, etc.) is
+  // swallowed silently -- this counter is read once a day by the owner,
+  // not a signal the child's experience can ever depend on.
+  function reportEvent(eventName) {
+    fetch("/api/e", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ event: eventName }),
+      keepalive: true,
+    }).catch(() => {});
+  }
+
+  // `extra.seconds` only matters for kind === "wait" (retryAfterSeconds from
+  // the response); every other kind ignores it.
+  function finishFailure(kind, extra) {
+    clearWaitCountdown();
+    if (kind === "wait") {
+      startWaitCountdown(extra && extra.seconds);
+      return;
+    }
+    // Story 8-2: fired right where the done-for-today state is actually
+    // shown to the child -- "daily_limit" is the one denial code that maps
+    // to drawDailyLimit (see RESULT_MESSAGE_KEYS above).
+    if (kind === "daily_limit") reportEvent("limit_reached");
     drawErrorMessage.textContent = window.I18N.t(RESULT_MESSAGE_KEYS[kind] || RESULT_MESSAGE_KEYS.provider_error);
     showResultSubState("error");
     inFlight = false;
     drawRetryBtn.disabled = false;
   }
 
-  // POSTs the already-captured sketch to /api/transform and routes the
-  // response to the success/error sub-state. Re-invoked as-is by retry
-  // (same captured sketch, no new capture) and is a no-op while a request
-  // is already pending.
+  // POSTs the already-captured sketch to /api/transform (Story 7.7's real
+  // contract: {sketch, promptId}, auth from window.LIMIT.getAuth(), a
+  // Turnstile token from the human check enterDrawCanvas() started) and
+  // routes the response to the success/error sub-state, keyed by the JSON
+  // body's own error.code (never inferred from HTTP status alone — a 429
+  // alone covers three different codes needing three different messages).
+  // Re-invoked as-is by retry (same captured sketch, no new capture) and is
+  // a no-op while a request is already pending.
   async function submitTransform() {
     if (inFlight) return;
     if (!capturedImage || !capturedImage.dataUrl) {
       console.error("QCDraw: submitTransform called with no captured sketch");
       return;
     }
-    if (window.LIMIT && !window.LIMIT.tryConsumeAi()) {
-      QCUI.showScreen("drawResult");
-      finishFailure("ai_limit");
-      return;
-    }
     inFlight = true;
     drawRetryBtn.disabled = true;
+    clearWaitCountdown();
     const token = requestToken;
     showResultSubState("waiting");
     QCUI.showScreen("drawResult");
+
+    // Await the promise enterDrawCanvas() already started (usually already
+    // resolved by now — see this file's Design Notes comment on
+    // refreshHumanToken), or start a fresh one if none is pending (a retry:
+    // the previous attempt already consumed its own token, single-use).
+    if (!humanTokenPromise) refreshHumanToken();
+    const pendingHumanToken = humanTokenPromise;
+    humanTokenPromise = null; // consumed — a later retry must start fresh
+    const turnstileToken = await pendingHumanToken;
+
+    // The kid navigated away (Gata / Desen nou) while the human check was
+    // still settling — drop this attempt; the navigating action already
+    // reset flow state.
+    if (token !== requestToken) return;
+
+    // getAuth() returns {authorization} or {device}, never both — `device`
+    // maps to the X-Device-Token header, `authorization` is already the
+    // exact header name fetch wants (see transform.js's own contract).
+    const auth = window.LIMIT ? window.LIMIT.getAuth() : {};
+    const headers = { "content-type": "application/json" };
+    if (auth.authorization) headers.authorization = auth.authorization;
+    if (auth.device) headers["X-Device-Token"] = auth.device;
+
+    const requestBody = {
+      sketch: stripDataUrlPrefix(capturedImage.dataUrl),
+      promptId: currentPrompt.id,
+    };
+    if (turnstileToken) requestBody.turnstile = turnstileToken;
 
     let response;
     try {
       response = await fetch("/api/transform", {
         method: "POST",
-        headers: { "content-type": "application/json", "x-app-token": APP_TOKEN },
-        body: JSON.stringify({
-          image: stripDataUrlPrefix(capturedImage.dataUrl),
-          prompt: currentPrompt.text,
-        }),
+        headers,
+        body: JSON.stringify(requestBody),
       });
     } catch (e) {
       // Offline / network failure: the fetch call itself rejected.
@@ -389,24 +487,33 @@
     // drop the response; the navigating action already reset flow state.
     if (token !== requestToken) return;
 
+    let body = null;
+    try {
+      body = await response.json();
+    } catch (e) {
+      body = null;
+    }
+    if (token !== requestToken) return;
+
     if (response.status === 200) {
-      let body = null;
-      try {
-        body = await response.json();
-      } catch (e) {
-        body = null;
+      // A successful free-device response carries a device token (a fresh
+      // mint, or an echoed existing one) — persist it for next time.
+      if (body && typeof body.device === "string" && body.device && window.LIMIT) {
+        window.LIMIT.setDevice(body.device);
       }
-      if (token !== requestToken) return;
       if (body && typeof body.image === "string" && body.image.length > 0) {
         finishSuccess(body.image);
       } else {
         finishFailure("provider_error");
       }
-    } else if (response.status === 429) {
-      finishFailure("cooldown");
+      return;
+    }
+
+    const code = body && body.error && typeof body.error.code === "string" ? body.error.code : null;
+    if (code === "wait") {
+      finishFailure("wait", { seconds: body.error.retryAfterSeconds });
     } else {
-      // 502, 504, or anything else unexpected: same generic friendly message.
-      finishFailure("provider_error");
+      finishFailure(code);
     }
   }
 
@@ -423,6 +530,8 @@
     requestToken += 1;
     inFlight = false;
     drawRetryBtn.disabled = false;
+    clearWaitCountdown();
+    humanTokenPromise = null;
     capturedImage = null;
     renderedImageDataUrl = null;
     showingSketch = false;
@@ -440,36 +549,39 @@
   }
 
   function enterDrawCanvas() {
-    started = false;
     locked = false;
+    hasStrokes = false;
     isDrawing = false;
     lastPoint = null;
     activePointerId = null;
     capturedImage = null;
     drawCanvasPrompt.textContent = currentPrompt.text;
-    drawFinishBtn.hidden = true;
 
     QCUI.showScreen("drawCanvas");
     sizeCanvas();
-    setDrawable(false);
+    setDrawable(true);
     setClearEnabled(true);
-    ring.setIdle(currentPrompt.seconds);
+
+    // Story 7.7 (Design Notes): runs once on entering the canvas screen, not
+    // lazily at submit time, so it usually resolves before the kid even
+    // finishes drawing.
+    refreshHumanToken();
   }
 
   function exitToStart() {
     requestToken += 1; // drop any in-flight transform response
     inFlight = false;
     drawRetryBtn.disabled = false;
-    ring.reset();
-    started = false;
+    clearWaitCountdown();
+    humanTokenPromise = null;
     locked = false;
+    hasStrokes = false;
     isDrawing = false;
     lastPoint = null;
     activePointerId = null;
     capturedImage = null;
     renderedImageDataUrl = null;
     showingSketch = false;
-    drawFinishBtn.hidden = true;
     clearTimeout(resizeTimer); // leaving the screen: a pending resize must not fire later
     QCUI.showScreen("start");
   }
@@ -496,32 +608,23 @@
   drawSaveBtn.addEventListener("click", saveCurrentImage);
 
   drawClearBtn.addEventListener("click", () => {
-    if (started || locked) return; // clear is only active before the countdown starts
+    if (locked) return; // clear is active throughout drawing, not once Termină! has locked the canvas
     clearCanvas();
+    hasStrokes = false; // canvas is blank again — resize may safely repaint it once more
   });
 
-  drawTimerRing.addEventListener("click", (event) => {
-    event.stopPropagation();
-    if (started || locked) return;
-    started = true;
-    setDrawable(true);
-    setClearEnabled(false);
-    drawFinishBtn.hidden = false;
-    ring.start();
-  });
-
-  drawFinishBtn.addEventListener("click", finishEarly);
+  drawFinishBtn.addEventListener("click", finishDrawing);
 
   let resizeTimer = null;
   window.addEventListener("resize", () => {
-    if (drawCanvasScreen.hidden || started || locked) return;
+    if (drawCanvasScreen.hidden || hasStrokes || locked) return;
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       // Re-check: sizeCanvas() repaints to a blank background and is only
-      // safe pre-drawing. The guard above only holds at event time, not 80ms
-      // later — a resize that lands right before the kid taps the timer ring
-      // to start drawing could otherwise wipe an in-progress sketch.
-      if (drawCanvasScreen.hidden || started || locked) return;
+      // safe while the canvas is still genuinely blank. The guard above only
+      // holds at event time, not 80ms later — a resize that lands right as
+      // the kid's first stroke begins could otherwise wipe it.
+      if (drawCanvasScreen.hidden || hasStrokes || locked) return;
       sizeCanvas();
     }, 80);
   });

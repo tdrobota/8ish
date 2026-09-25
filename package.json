@@ -1,0 +1,14 @@
+{
+  "name": "8ish",
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node scripts/run-checks.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "4.136.2"
+  }
+}

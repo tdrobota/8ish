@@ -5,3 +5,4 @@ _bmad-output/
 .dev.vars
 .vs/
 uploads/
+node_modules/
