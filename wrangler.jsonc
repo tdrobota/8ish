@@ -93,6 +93,29 @@
     "FREE_DAILY_LIMIT": "10",
     "FEATURE_FRIEND_MODE": "false",
     "FEATURE_FAMILY_MODE": "false",
+    // ORIGIN, set 2026-09-25 (Story 5-1's real-device spike): a bare
+    // scheme+host, no trailing slash/path/query (functions/api/checkout.js's
+    // own ORIGIN_RE enforces this shape). Two things require it before
+    // either can work at all: lib/turnstile.js compares every siteverify
+    // response's `hostname` against this var's own host (never the
+    // request's Host header, which a caller could spoof), and checkout.js
+    // builds success_url/cancel_url and the Terms link from it, never from
+    // the request. The site answers on BOTH www.8ish.app and the bare
+    // 8ish.app with no redirect between them today -- this var can only
+    // ever match one, so a checkout attempt from whichever hostname isn't
+    // named here will fail the Turnstile hostname check even with an
+    // otherwise-valid token. www.8ish.app chosen as canonical (matches what
+    // the owner actually shares/types); revisit if that changes, or add a
+    // redirect from the apex so real traffic only ever arrives on this one.
+    "ORIGIN": "https://www.8ish.app",
+    // TURNSTILE_SITE_KEY, set 2026-09-25 (Story 5-1): public, safe to
+    // commit (see functions/api/config.js's own header comment) -- paired
+    // one-to-one with the TURNSTILE_SECRET the owner set as a real Worker
+    // Secret (never committed, docs/runbook.md §2.4). The widget itself is
+    // configured in the Cloudflare Turnstile dashboard for both
+    // www.8ish.app and 8ish.app -- only requests arriving on the ORIGIN
+    // host above will actually pass the hostname check either way.
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFDnMGzky-c-KKbQ",
     "PRICE_CURRENCY": "RON",
     // No hand-set PRICE_MONTHLY_RON/PRICE_YEARLY_RON vars here (removed
     // 2026-09-25) -- Story 6-5 already moved the paywall's displayed price

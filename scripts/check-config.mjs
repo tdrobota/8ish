@@ -986,9 +986,16 @@ check("functions/api/config.js: TURNSTILE_SITE_KEY set -> the response's turnsti
   assert.equal(body.turnstileSiteKey, "1x00000000000000000000AA");
 });
 
-check("functions/api/config.js: TURNSTILE_SITE_KEY unset (today's reality) -> the response's turnstileSiteKey is null", async () => {
+check("functions/api/config.js: the real committed TURNSTILE_SITE_KEY (whatever it currently is) reaches the response unchanged", async () => {
+  // Tracks the owner's real setup state, not a fixed literal -- unset until
+  // Story 5-1's real-device spike resolved (this check used to assert
+  // `null`, "today's reality"), now a real Turnstile site key committed to
+  // wrangler.jsonc (see that file's own comment on this var). This proves
+  // config.js passes whatever's actually committed straight through
+  // (`null` if it's ever unset again, exactly like the widget's very own
+  // "isn't configured" contract), not that it holds any particular value.
   const body = await serverConfigAnswer(wrangler.vars);
-  assert.equal(body.turnstileSiteKey, null);
+  assert.equal(body.turnstileSiteKey, typeof wrangler.vars.TURNSTILE_SITE_KEY === "string" && wrangler.vars.TURNSTILE_SITE_KEY ? wrangler.vars.TURNSTILE_SITE_KEY : null);
 });
 
 // Story 4.3: Cloudflare's automatic per-request invocation log records the
@@ -7023,13 +7030,18 @@ check("stripe-webhook.js: writeDedupedFunnelEvent(...) -- the one function whose
 });
 
 check("wrangler.jsonc: declares the FUNNEL Analytics Engine dataset binding, purely additively -- every other pre-existing binding/var/route is untouched (I/O matrix: the binding this whole story depends on)", () => {
-  const wranglerRaw = readFileSync(path.join(ROOT_DIR, "wrangler.jsonc"), "utf8");
-  // wrangler.jsonc is JSONC (has comments) -- strip // line comments before
-  // JSON.parse, the same tolerant approach a human skimming the file uses;
-  // good enough for this structural check (no string in this file contains
-  // "//").
-  const stripped = wranglerRaw.replace(/\/\/[^\n]*/g, "");
-  const parsed = JSON.parse(stripped);
+  // Reuses the shared, string-aware readJsonc() (defined above, also used
+  // for the module-level `wrangler` constant) rather than this check's own
+  // former one-off comment-stripping regex -- that regex stripped anything
+  // after "//" on EVERY line, comments or not, on the assumption "no string
+  // in this file contains '//'". ORIGIN's own value ("https://...", added
+  // for Story 5-1) broke that assumption for real: the naive strip cut the
+  // string off mid-value and corrupted every line after it into one
+  // unterminated JSON string, failing this check with a "bad control
+  // character" JSON.parse error having nothing to do with what it actually
+  // tests. readJsonc() tracks quoted-string state character-by-character,
+  // so a "//" inside a real string value is never mistaken for a comment.
+  const parsed = readJsonc("wrangler.jsonc");
   assert.ok(Array.isArray(parsed.analytics_engine_datasets), "wrangler.jsonc must declare analytics_engine_datasets");
   const funnel = parsed.analytics_engine_datasets.find((b) => b.binding === "FUNNEL");
   assert.ok(funnel, "expected a binding named FUNNEL in analytics_engine_datasets");

@@ -234,14 +234,20 @@ template.
 
 ### 1.5 Turnstile — widget, site key, hostname allowlist
 
-- **Status:** planned, Epic 5 (Story 5-1 spikes whether it works at all on
-  the owner's iPad home-screen PWA before it is built; AD-16 gate).
+- **Status:** widget created 2026-09-25 (Story 5-1), hostnames `8ish.app` /
+  `www.8ish.app`. `TURNSTILE_SITE_KEY` and `ORIGIN` (`https://www.8ish.app`,
+  chosen as canonical — see that var's own comment in `wrangler.jsonc` for
+  the apex/www caveat) are committed; `TURNSTILE_SECRET` is set as a real
+  Worker Secret (§2.4) — not independently re-verified from this repo, so
+  confirm on the account before relying on it. Still unverified end-to-end
+  on the owner's actual iPad home-screen PWA (AD-16's own gate) — that's a
+  real-device check, not something a commit can confirm.
 - **Where it lives:** Cloudflare dashboard → Turnstile → the site's widget
   configuration (site key, secret key, allowed hostnames).
-- **Shape (from AD-16, not yet created):** hostnames restricted to
-  `8ish.app` / `www.8ish.app`; the Worker calls `siteverify` without
-  `remoteip`, requiring `success`, `action` present and matching, and
-  `hostname` equal to the `ORIGIN` var's host.
+- **Shape (from AD-16):** hostnames restricted to `8ish.app` /
+  `www.8ish.app`; the Worker calls `siteverify` without `remoteip`,
+  requiring `success`, `action` present and matching, and `hostname` equal
+  to the `ORIGIN` var's host.
 - **How to verify once built:** a real free-tier Image request without a
   device token should mint one only after a passed Turnstile check; a
   replayed or missing token should fail with `403 human_check_failed`.
@@ -581,13 +587,15 @@ repo.
 - **Undo:** during the overlap window, `wrangler secret put
   ENTITLEMENT_SECRET` with the previous value restores it immediately.
 
-### 2.4 `TURNSTILE_SECRET` — code live since Story 6-3, unusable until Story 5-1
+### 2.4 `TURNSTILE_SECRET` — set 2026-09-25, real-device verification still open
 
 - **Status:** `functions/lib/turnstile.js` (Story 6-3) calls `siteverify`
-  with it whenever the secret is set, but nothing sets it: the Turnstile
-  widget itself (§1.5) is still blocked on Story 5-1's real-device spike.
-  Until then `restore.js` always answers `403 human_check_failed` for
-  every request, by design (fail closed, not insecure) — not a bug.
+  with it whenever the secret is set. The owner set it as a real Worker
+  Secret alongside creating the widget (§1.5) — not independently
+  re-verified from this repo (a secret's value can't be read back). Before
+  this, `restore.js`/`checkout.js` always answered `403 human_check_failed`
+  for every request, by design (fail closed, not insecure) — not a bug, and
+  worth remembering if an OLDER deployed version still shows that.
 - **Troubleshooting:** a missing `TURNSTILE_SECRET` folds into the same
   generic `human_check_failed` a real failed check gives — no distinct
   `not_configured` signal, unlike `STRIPE_SECRET_KEY`/`ENTITLEMENT_SECRET`
