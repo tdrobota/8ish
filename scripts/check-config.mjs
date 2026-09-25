@@ -5523,6 +5523,30 @@ check("transform.js: without env.AI_STUB, env.AI.run(MODEL_ID, {multipart}) is c
   assert.ok(String(aiRunCalls[0].args.multipart.contentType).includes("multipart/form-data"));
 });
 
+check("transform.js: the multipart body sent to the model requests a square 1024x1024 output -- added 2026-09-26 because the model's own documented default (width/height omitted) is a fixed 1024x768 rectangle, which doesn't match the always-square sketch canvas and showed as real letterboxing in the app's result frame", async () => {
+  const secret = "size_param_secret";
+  const token = await mintTransformCredential(secret);
+  const { stub } = makeGovernorStub();
+  const aiRunCalls = [];
+  const { env } = makeTransformEnv({
+    secret,
+    governorStub: stub,
+    aiImpl: async (modelId, args) => (aiRunCalls.push({ modelId, args }), { image: "via_real_ai" }),
+  });
+  const { onRequestPost } = loadTransform();
+  const { ctx } = makeCtx();
+  await onRequestPost({ request: transformRequest({ sketch: VALID_PNG_B64, promptId: VALID_PROMPT_ID }, { token }), env, ctx });
+
+  // Decode the real multipart body the same way the model's own HTTP
+  // endpoint would, rather than trusting a mock -- proves the actual bytes
+  // sent carry these fields, not just that some code path claims to add them.
+  const decoded = await new Response(aiRunCalls[0].args.multipart.body, {
+    headers: { "content-type": aiRunCalls[0].args.multipart.contentType },
+  }).formData();
+  assert.equal(decoded.get("width"), "1024");
+  assert.equal(decoded.get("height"), "1024");
+});
+
 // --- 13. model throws / malformed / empty -> release(providerFailed) -------
 
 check("transform.js: the model call rejecting -> release(id, {providerFailed:true}) via ctx.waitUntil(), 502 provider_error, no exception text in the body", async () => {

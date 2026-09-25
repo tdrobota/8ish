@@ -84,6 +84,21 @@ const HUMAN_CHECK_ACTION = "image";
 const MODEL_ID = "@cf/black-forest-labs/flux-2-klein-4b";
 const TIMEOUT_MS = 30000;
 
+// Requested explicitly (added 2026-09-26) -- this model's own documented
+// default when width/height are omitted is 1024x768 (a fixed 4:3
+// rectangle), never square, confirmed live: every real generation came
+// back exactly that shape, sitting inside the app's square result frame
+// (draw.js's #drawArtWrap) with visible white letterboxing top and bottom.
+// The sketch sent as input_image_0 is always square and <=512x512
+// (public/draw.js's captureDownscaled) -- requesting a square output here
+// matches it, so the frame's own square aspect-ratio is correct without
+// relying on draw.js's dynamic aspect-ratio resize to paper over a
+// mismatch (that logic stays anyway, as a real safety net -- see its own
+// comment -- for any model response that doesn't come back exactly this
+// shape). 1024 is comfortably inside the model's documented 256-1920
+// range for both dimensions and well under its 4MP cap.
+const OUTPUT_SIZE = "1024";
+
 // Actual bytes read, never a trusted Content-Length (Content-Length can be
 // absent or wrong) — enforced by readCappedBody() below, which never
 // consults the header at all.
@@ -911,6 +926,8 @@ async function runModelAndSettle({ env, ctx, governorStub, reservationId, pngByt
     const form = new FormData();
     form.append("prompt", buildTransformPrompt(promptEntry.text));
     form.append("input_image_0", imageBlob);
+    form.append("width", OUTPUT_SIZE);
+    form.append("height", OUTPUT_SIZE);
 
     // Cloudflare's documented trick for turning a FormData into the raw
     // multipart body + content-type this model family's binding expects.
