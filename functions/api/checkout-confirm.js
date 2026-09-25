@@ -148,9 +148,21 @@ export async function onRequestPost({ request, env }) {
   // treated as fresh.
   const fresh = typeof session.created === "number" && Date.now() - session.created * 1000 <= MAX_SESSION_AGE_MS;
 
+  // "no_payment_required" -- not just "paid" -- confirmed live and for
+  // real 2026-09-25: Stripe reports THIS, never "paid", for a Checkout
+  // Session with a 100%-off coupon (a genuinely $0 total, nothing left to
+  // collect). AD-15 already flagged this exact case as needing a test-mode
+  // check before relying on it; it was never actually run until the
+  // family's own complimentary redemption hit it live -- `active` came
+  // back false for a real, active subscription, so NEITHER a credential
+  // NOR a restore code was ever issued (not "failed silently": the whole
+  // restoreCode branch below never even ran, so the Stripe customer's
+  // metadata has no restore_code_hash at all yet -- this fix, plus one
+  // more real confirm() call against that same session, is all this needs;
+  // no manual metadata reset required).
   const subscription = session.subscription;
   const active =
-    session.payment_status === "paid" &&
+    (session.payment_status === "paid" || session.payment_status === "no_payment_required") &&
     subscription &&
     (subscription.status === "active" || subscription.status === "trialing");
 

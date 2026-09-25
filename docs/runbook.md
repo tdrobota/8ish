@@ -383,10 +383,21 @@ template.
   put in this file); Checkout for it uses
   `payment_method_collection: if_required` so no card is required for a
   0-total session.
-- **How to verify:** redeem it once in test mode and confirm
-  `checkout/confirm` accepts the resulting session and issues a working
-  credential (AD-15 calls this out explicitly as needing a test-mode check,
-  since a 100%-off session's reported status is not yet confirmed).
+- **How to verify:** redeem it once and confirm `checkout/confirm` accepts
+  the resulting session and issues a working credential. ⚠ **This WAS the
+  live redemption, not a test-mode one, and it found the exact bug AD-15
+  flagged as unverified:** Stripe reports `payment_status:
+  "no_payment_required"` for a genuine $0/100%-off session, never `"paid"`
+  — `checkout-confirm.js`'s `active` check required literal `"paid"`, so
+  the family's real redemption came back `active: false`, minting neither
+  a credential nor a restore code, despite the subscription itself being
+  genuinely active on Stripe. Fixed 2026-09-25 (now accepts either value);
+  see that file's own comment on the `active` check. The family's Stripe
+  customer never got a `restore_code_hash` written (the whole branch never
+  ran), so recovering their access needs no manual metadata reset — just
+  one more `checkout/confirm` call against that same session once the fix
+  is deployed (the session's age doesn't block restore-code issuance, only
+  credential minting, per that file's own freshness comment).
 - **How to undo:** deactivate the promotion code (Stripe keeps redemption
   history even when deactivated) or delete the coupon.
 - **How to recreate:** if the code is ever lost, deactivated by mistake,

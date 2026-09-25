@@ -2171,9 +2171,12 @@ check("checkout-confirm.js: STRIPE_SECRET_KEY or ENTITLEMENT_SECRET missing answ
 });
 
 // A fake Stripe Checkout Session as `get()` would return it, expanded.
-function fakeSession({ createdSecondsAgo, paid = true, subscriptionStatus = "active", hasCustomer = true }) {
+// `paymentStatus` overrides the `paid` boolean entirely when given -- lets a
+// test ask for Stripe's real third value, "no_payment_required" (a 100%-off
+// session), without touching every existing paid:true/false call site.
+function fakeSession({ createdSecondsAgo, paid = true, paymentStatus, subscriptionStatus = "active", hasCustomer = true }) {
   return {
-    payment_status: paid ? "paid" : "unpaid",
+    payment_status: paymentStatus || (paid ? "paid" : "unpaid"),
     created: Math.floor(1_700_000_000_000 / 1000) - createdSecondsAgo,
     customer: hasCustomer ? { id: "cus_1", metadata: {} } : null,
     subscription: {
@@ -2199,6 +2202,35 @@ check("checkout-confirm.js: a valid, paid, active session older than 30 minutes 
   assert.equal(body.active, true, "a stale session that is genuinely paid and active must still report active -- staleness is a credential-replay concern, not a payment-status one");
   assert.equal(body.credential, null, "a session older than 30 minutes must mint no credential");
   assert.ok(body.restoreCode, "a stale-but-active confirm must still issue the family's one-time restore code, or they are stranded with no self-serve way back in");
+});
+
+check("checkout-confirm.js: a 100%-off session (payment_status \"no_payment_required\", not \"paid\") still reports active and issues a restore code -- confirmed live 2026-09-25 that Stripe reports exactly this for a $0 total, and the check used to require literal \"paid\"", async () => {
+  const now = 1_700_000_000_000;
+  const { onRequestPost, setNow } = loadCheckoutConfirm({
+    now,
+    getImpl: () => async () => fakeSession({ createdSecondsAgo: 60, paymentStatus: "no_payment_required" }),
+    postImpl: () => async () => ({}),
+  });
+  setNow(now);
+  const env = { STRIPE_SECRET_KEY: "sk_test", ENTITLEMENT_SECRET: "secret_current" };
+  const res = await onRequestPost({ request: jsonRequest({ sessionId: VALID_SESSION_ID }), env });
+  const body = await res.json();
+  assert.equal(res.status, 200);
+  assert.equal(body.active, true, "no_payment_required is a genuinely completed $0 session, not an unpaid one -- must report active");
+  assert.ok(body.credential, "a fresh no_payment_required session must still mint a credential, same as a fresh paid one");
+  assert.ok(body.restoreCode, "a no_payment_required session must still issue the family's one-time restore code");
+});
+
+check("checkout-confirm.js: payment_status \"unpaid\" (neither paid nor no_payment_required) reports active: false and issues no restore code", async () => {
+  const { onRequestPost } = loadCheckoutConfirm({
+    getImpl: () => async () => fakeSession({ createdSecondsAgo: 60, paid: false }),
+  });
+  const env = { STRIPE_SECRET_KEY: "sk_test", ENTITLEMENT_SECRET: "secret_current" };
+  const res = await onRequestPost({ request: jsonRequest({ sessionId: VALID_SESSION_ID }), env });
+  const body = await res.json();
+  assert.equal(body.active, false);
+  assert.equal(body.credential, null);
+  assert.equal(body.restoreCode, null);
 });
 
 check("checkout-confirm.js: a session exactly 30 minutes old still mints a credential; one second older does not (boundary) -- active is true either way", async () => {
