@@ -152,19 +152,19 @@ template.
 
 ### 1.3 Cloudflare Worker var — `AI_ENABLED` (the emergency Kill Switch)
 
-- **Status:** live today as code, and genuinely wired up (Stories 7-4 through
-  7-7). `functions/lib/governor-config.js` checks `env.AI_ENABLED` first,
-  before any KV call — anything other than the literal string `"true"`
-  (unset, `"false"`, any typo, wrong case) fails Image spend closed with
-  zero KV I/O; `functions/api/transform.js` is the real caller (both the
-  subscriber and free-device paths). `wrangler.jsonc`'s committed `vars`
-  block currently sets it to `"false"` — deliberately, per Epic 7's own
-  release note ("stories 7.5 to 7.7 are deployed together, with
-  `AI_ENABLED = false` until 7.7 ships") and Story 7.7's own AC ("after the
-  smoke test the owner flips `AI_ENABLED` to true"). Flipping the COMMITTED
-  value to `"true"` (in `wrangler.jsonc`, before the next deploy that
-  matters) is the owner's own action, after a real deploy and a real smoke
-  test — not something any story in this build performs.
+- **Status:** live today as code, genuinely wired up (Stories 7-4 through
+  7-7), and **enabled in production as of 2026-09-25.**
+  `functions/lib/governor-config.js` checks `env.AI_ENABLED` first, before
+  any KV call — anything other than the literal string `"true"` (unset,
+  `"false"`, any typo, wrong case) fails Image spend closed with zero KV
+  I/O; `functions/api/transform.js` is the real caller (both the subscriber
+  and free-device paths). `wrangler.jsonc`'s committed `vars` block set it
+  to `"false"` through the first production deploy (Epic 7's release note:
+  "stories 7.5 to 7.7 are deployed together, with `AI_ENABLED = false`
+  until 7.7 ships"); the owner then flipped it to `"true"` in the dashboard,
+  ran a real smoke test (drawing worked end-to-end against the live AI),
+  and asked for `"true"` to be committed as the real default so it survives
+  future deploys — done, same day.
 - **Where it lives:** Cloudflare dashboard → Workers & Pages → `8ish-plus` →
   Settings → Variables and Secrets (the plaintext Environment Variables
   section, not Secrets — `AI_ENABLED` is not sensitive).
@@ -186,19 +186,15 @@ template.
   back to whatever `wrangler.jsonc` currently commits, in EITHER direction:**
   `AI_ENABLED` is declared in `wrangler.jsonc`'s committed `vars` block, and
   Wrangler reconciles a Worker's `vars` to match that file on every
-  `wrangler deploy`. Concretely, today (committed value `"false"`, pre-launch):
-  a dashboard-only flip to `"true"` (e.g. for a smoke test) that isn't also
-  committed to `wrangler.jsonc` will be silently reverted back to `"false"`
-  by the next, otherwise-unrelated deploy — safe-by-default, but worth
-  knowing so a smoke test doesn't get silently undone. Once the owner has
-  committed `"true"` as the real launch default, the direction flips: a
-  dashboard-only emergency disable (`"false"`) that isn't also committed
-  will be silently reverted back to `"true"` by the next deploy — the
-  scenario this caution was originally written for. Either way: for a
-  disable that must survive a future deploy, also flip the committed value
-  in `wrangler.jsonc` itself before that deploy goes out — or rely on the
-  WAF backup rule (§1.2), which is entirely dashboard-side and unaffected by
-  any Worker deploy.
+  `wrangler deploy`. **Now that `"true"` is the committed default** (as of
+  2026-09-25): a dashboard-only emergency disable (`"false"`, e.g. during a
+  Kill Switch drill or a real incident) that isn't ALSO committed to
+  `wrangler.jsonc` will be silently reverted back to `"true"` by the next,
+  otherwise-unrelated deploy — this is the scenario this caution exists
+  for. For a disable that must survive a future deploy, also flip the
+  committed value in `wrangler.jsonc` itself before that deploy goes out —
+  or rely on the WAF backup rule (§1.2), which is entirely dashboard-side
+  and unaffected by any Worker deploy.
 
 ### 1.4 Cloudflare KV — `cfg:governor` (Governor routine limits)
 

@@ -99,7 +99,21 @@
     // Stripe LIVE-mode Price IDs (price_...), not secret — these only
     // work paired with a live STRIPE_SECRET_KEY (see README "Go-live
     // checklist"); a test-mode key will reject them and vice versa.
-    "STRIPE_PRICE_MONTHLY": "price_1UBGYiLB8ccn9aOAwgO14piO",
+    //
+    // STRIPE_PRICE_MONTHLY updated 2026-09-25: the original Price
+    // (price_1UBGYiLB8ccn9aOAwgO14piO) couldn't be edited (Stripe Prices
+    // are immutable once created — a price change always means archiving
+    // the old one and creating a new one), so the owner created a new
+    // Monthly Price and this now points at it. Safe to swap by ID alone:
+    // functions/api/config.js fetches the real displayed price live from
+    // Stripe by this exact Price id (unit_amount, cached in STATE_KV as
+    // `price:<this id>` for ~a day) — a new id is simply a fresh cache key,
+    // so the paywall picks up the new amount on its very next request,
+    // with no stale-cache risk from the id change itself. PRICE_MONTHLY_RON
+    // above is NOT read by any code (Story 6-5 moved pricing display to
+    // live Stripe data) and was intentionally left unchanged here — update
+    // it too if you want it to stop reading a possibly-stale number.
+    "STRIPE_PRICE_MONTHLY": "price_1UJZ8MLB8ccn9aOA3Tkj4ESY",
     "STRIPE_PRICE_YEARLY": "price_1UBGYiLB8ccn9aOA5ACoY5Oe",
     // The Spend Governor's emergency Kill Switch (Story 7-4, AD-14) --
     // functions/lib/governor-config.js checks this BEFORE any KV call:
@@ -129,24 +143,21 @@
     // documents for this exact same var name in docs/runbook.md §10.2), so
     // it belongs here as a plain var, unlike ANALYTICS_READ_TOKEN itself
     // (a real secret, set only via `wrangler secret put`, never committed
-    // here -- see docs/runbook.md §1.10/§2.5). Committed as "" (empty) --
-    // the owner's own real Cloudflare account id; this build invents none
-    // (no live Cloudflare account exists in this session).
-    "CF_ACCOUNT_ID": "",
-    // Committed as "false" -- corrected from an earlier "true" default
-    // (Story 7-4's own build), which contradicted epics.md's own explicit
-    // release note for this epic: "stories 7.5 to 7.7 are deployed
-    // together, with AI_ENABLED = false until 7.7 ships (the new endpoint
-    // would otherwise answer not-yet-updated apps with an error)" -- and
-    // Story 7.7's own AC: "after the smoke test the owner flips AI_ENABLED
-    // to true". Nothing in this repo has been deployed at any point in
-    // Epic 7's build, so the earlier "true" default never had a real-world
-    // effect -- but leaving it that way in the committed file would have
-    // meant a deploy going out AI-enabled before the owner's own smoke
-    // test, skipping the safety gate this var exists to provide. Flipping
-    // this to "true" is the owner's own action, after deploying and
-    // running a real smoke test against the live endpoint -- never part of
-    // any story's own build.
-    "AI_ENABLED": "false"
+    // here -- see docs/runbook.md §1.10/§2.5). The owner's real Cloudflare
+    // account id, set 2026-09-25 once a real account existed to point at.
+    "CF_ACCOUNT_ID": "fbfde655ec395360092aabce98e4dad5",
+    // Committed as "true" as of 2026-09-25 -- the owner deployed with it
+    // still "false" (Story 7.7's own release gate: "stories 7.5 to 7.7 are
+    // deployed together, with AI_ENABLED = false until 7.7 ships"), ran a
+    // real smoke test against the live endpoint by flipping it to "true" in
+    // the Cloudflare dashboard, confirmed drawing works end-to-end, and
+    // asked for "true" to be the committed default so a future deploy
+    // doesn't silently revert the dashboard-only flip back to "false"
+    // (docs/runbook.md §1.3's own documented risk of exactly that). To
+    // disable Image spend again (an emergency Kill Switch), flip this in
+    // the dashboard for an immediate effect (docs/runbook.md §1.3) --
+    // remember to also commit "false" here before the next deploy if the
+    // disable needs to survive it.
+    "AI_ENABLED": "true"
   }
 }
