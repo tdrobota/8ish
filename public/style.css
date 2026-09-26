@@ -19,6 +19,18 @@
   --paper: #fff8ec;
   --paper-chip: rgba(255, 248, 236, 0.94);
 
+  /* Fixed, contrast-checked secondary-text colors (added 2026-09-26,
+     /impeccable audit) -- replace `opacity` used to fake a "muted" look on
+     --ink/--card-1 text, which measured under WCAG AA's 4.5:1 on --paper at
+     several real sizes/viewports. Each is a tint from its own source hue,
+     never a plain gray, picked to clear 4.5:1 with a small safety margin
+     (not just barely at the line): --ink-muted ~4.9:1, --card-1-text ~5.2:1
+     against --paper. Use these for TEXT specifically; --ink/--card-1
+     themselves are unchanged for borders, backgrounds, and other non-text
+     uses. */
+  --ink-muted: #6f6c6c;
+  --card-1-text: #ad4464;
+
   /* poster-marker card colors, cycled per question */
   --card-0: #ffc53d; /* sun */
   --card-1: #ff5c8a; /* bubblegum */
@@ -131,8 +143,10 @@ body {
   max-width: 32ch;
   font-weight: 700;
   font-size: clamp(1rem, 2.4vw, 1.25rem);
-  color: var(--ink);
-  opacity: 0.65;
+  /* Fixed color, not opacity (/impeccable audit, 2026-09-26) -- opacity:
+     0.65 on --ink measured 3.8:1 at mobile widths, under WCAG AA's 4.5:1
+     minimum. --ink-muted clears it with margin. */
+  color: var(--ink-muted);
 }
 
 /* ---------- Question stage ---------- */
@@ -855,6 +869,17 @@ body {
   color: var(--ink);
 }
 
+/* Modifier, not a variant of .info-text's own rule (/impeccable audit,
+   2026-09-26): .info-text's uppercase treatment is correct for the short
+   headline labels it's normally used for ("Abonament activ", "8ish+"), but
+   the Restore screen's one instance is a full instructional sentence --
+   an all-caps sentence is genuinely harder to read (we recognize words by
+   shape, which uppercase removes). Same size/weight/color as .info-text,
+   just not shouted. */
+.info-text-sentence {
+  text-transform: none;
+}
+
 .info-subtext {
   margin: 0;
   max-width: 34ch;
@@ -901,7 +926,11 @@ body {
 .gate-error {
   margin: 0;
   font-weight: 700;
-  color: var(--card-1);
+  /* --card-1-text, not --card-1 (/impeccable audit, 2026-09-26) -- the raw
+     card color measured 2.8:1 against --paper, well under WCAG AA's 4.5:1;
+     the text-stroke below isn't counted toward contrast ratio. This is the
+     actual "wrong answer, try again" message the parent gate depends on. */
+  color: var(--card-1-text);
   -webkit-text-stroke: 0.6px var(--ink);
 }
 
@@ -992,7 +1021,12 @@ body {
   margin-bottom: 2.5rem;
 }
 
-.policy-content h1 {
+/* Retargeted from ".policy-content h1" (/impeccable audit, 2026-09-26):
+   the real <h1> lives in .policy-header (privacy.html/terms.html, both
+   languages), a SIBLING of .policy-card.policy-content, not a descendant
+   -- the old selector never matched anything, so this heading has been
+   rendering at the browser's unstyled default this whole time. */
+.policy-header h1 {
   margin: 0 0 0.4rem;
   font-family: "Poppins", sans-serif;
   font-weight: 700;
@@ -1004,7 +1038,10 @@ body {
 .policy-updated {
   margin: 0;
   font-size: 0.9rem;
-  opacity: 0.6;
+  /* Fixed color, not opacity (/impeccable audit, 2026-09-26) -- opacity:
+     0.6 measured a severe 1.8:1 live against --paper, far under WCAG AA's
+     4.5:1. --ink-muted clears it with margin. */
+  color: var(--ink-muted);
 }
 
 .policy-card {
