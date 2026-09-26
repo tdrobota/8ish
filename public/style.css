@@ -137,8 +137,6 @@ body {
 }
 
 .eyebrow {
-  flex: 1;
-  min-width: 0;
   margin: 0;
   font-family: "Poppins", sans-serif;
   font-weight: 700;
@@ -147,6 +145,23 @@ body {
   font-size: clamp(1.1rem, 2.4vw, 1.6rem);
   color: var(--ink);
   opacity: 0.7;
+}
+
+/* Scoped to .start-header specifically (fixed 2026-09-26, regression from
+   the previous commit): .eyebrow is reused as a bare child of a vertical
+   .screen flex column on 7 OTHER screens (draw prompt, daily-limit,
+   parent gate, paywall, restore, restore-code-reveal) -- flex-grow there
+   means "grow to fill the column's height", not "grow along the row" the
+   way it does inside .start-header. A bare `.eyebrow { flex: 1 }` made
+   every one of those screens balloon the eyebrow to ~225px tall and push
+   everything else down into the bottom of the viewport -- confirmed live,
+   this was the exact cause of the "huge whitespace" bug on the draw
+   prompt screen. min-width: 0 stays scoped here too, for the same reason
+   (it only matters for a flex item that's actually being asked to shrink
+   below its content size, which again is only true inside the row). */
+.start-header .eyebrow {
+  flex: 1;
+  min-width: 0;
 }
 
 .btn-start {
@@ -1075,6 +1090,19 @@ body {
 .policy-header {
   text-align: center;
   margin-bottom: 2.5rem;
+}
+
+/* Added 2026-09-26 for privacy.html/terms.html, then reused as-is above
+   every other in-app screen's own .eyebrow (index.html) -- one shared
+   class rather than a near-duplicate per context. Reuses the same
+   icon-192.png mark the start screen's .start-logo shows. display:block +
+   margin auto centers it under text-align:center (a normal img is
+   inline, so text-align alone doesn't center IT, only inline content). */
+.brand-logo {
+  display: block;
+  margin: 0 auto 1rem;
+  width: clamp(36px, 8vw, 48px);
+  height: clamp(36px, 8vw, 48px);
 }
 
 /* Retargeted from ".policy-content h1" (/impeccable audit, 2026-09-26):
