@@ -47,7 +47,7 @@
   // messages, error strings set from JS) uses I18N.t(key) directly.
   const STRINGS = {
     ro: {
-      eyebrowHome: "Cartonașe cu întrebări",
+      eyebrowHome: "Activități pentru copii",
       modeQuestions: "Întrebări",
       modeChallenges: "Provocări",
       modeGames: "Jocuri",
@@ -143,7 +143,7 @@
       "parent.perYear": "/an",
     },
     en: {
-      eyebrowHome: "Question Cards",
+      eyebrowHome: "Kids' Activities",
       modeQuestions: "Questions",
       modeChallenges: "Challenges",
       modeGames: "Games",

@@ -73,7 +73,30 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* "safe center", not plain "center" (added 2026-09-26, alongside
+     overflow-y below): confirmed live that plain "center" plus overflow
+     clips symmetrically and scrolling can never reach the true start of
+     overflowing content -- scrollTop stays 0 while the header sits at
+     -124px, permanently unreachable. "safe" falls back to start-alignment
+     only once content overflows, so the same scrollbar this story adds
+     can actually reach everything. The plain "center" line stays right
+     before it, deliberately: Safari added "safe"/"unsafe" only at 18
+     (confirmed against caniuse) -- an older Safari treats the WHOLE
+     "safe center" declaration as invalid and drops it, which would fall
+     back to justify-content's own initial value ("normal", i.e.
+     flex-start) and stop centering entirely on every screen, not just
+     this overflow case. Keeping plain "center" as the line immediately
+     before means an older engine that can't parse the second declaration
+     simply keeps the first one it already applied, same as today. */
   justify-content: center;
+  justify-content: safe center;
+  /* Centered flex content with no overflow handling was silently
+     unreachable past the viewport edge on a short/landscape screen
+     (confirmed live on the start screen at 844x390) -- nothing scrolled,
+     so clipped content had zero path back into view. auto is a no-op
+     whenever content actually fits (every screen at ordinary sizes), and
+     a real escape hatch everywhere it doesn't. */
+  overflow-y: auto;
 }
 
 .screen[hidden] {
@@ -90,7 +113,32 @@ body {
   text-align: center;
 }
 
+/* Added 2026-09-26: was a lone absolutely-positioned toggle floating over
+   the centered content -- confirmed live, on a short/landscape viewport
+   (visually verified via a real browser render, not just CSS reasoning)
+   the vertically-centered stack overflowed past the top of the screen and
+   collided with it, with no way to scroll to the clipped content. Putting
+   the logo, eyebrow, and toggle in one real flex row reserves their own
+   space in the document flow, so nothing can ever sit on top of anything
+   else, at any viewport size -- not just a special case for short
+   screens. */
+.start-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 780px;
+}
+
+.start-logo {
+  flex: none;
+  width: clamp(36px, 8vw, 48px);
+  height: clamp(36px, 8vw, 48px);
+}
+
 .eyebrow {
+  flex: 1;
+  min-width: 0;
   margin: 0;
   font-family: "Poppins", sans-serif;
   font-weight: 700;
@@ -127,6 +175,20 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   gap: 1.25rem;
+}
+
+/* Tablet/laptop: a deliberate 2x2 grid instead of flex-wrap's organic
+   wrapping (added 2026-09-26) -- confirmed live that flex-wrap left
+   unpredictable, lopsided rows at real widths (3-across-plus-1-alone at
+   1440px; a clean 2x2 only happened to occur around 1024px by accident).
+   768px matches the iPad portrait width, a conventional tablet floor. */
+@media (min-width: 768px) {
+  .mode-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 780px;
+    margin: 0 auto;
+  }
 }
 
 .btn-mode {
@@ -786,10 +848,10 @@ body {
 }
 
 .lang-toggle-btn {
-  position: absolute;
-  top: max(1.25rem, env(safe-area-inset-top));
-  left: max(1.25rem, env(safe-area-inset-left));
-  z-index: 2;
+  /* Real flex item now (added 2026-09-26), not position:absolute -- see
+     .start-header's own comment for why. Reused as-is inside
+     .policy-topbar (privacy.html/terms.html), already a real flex row. */
+  flex: none;
   appearance: none;
   margin: 0;
   font-family: "Poppins", sans-serif;
@@ -808,12 +870,6 @@ body {
 
 .lang-toggle-btn:active {
   background: var(--paper);
-}
-
-.policy-lang-toggle-btn {
-  position: static;
-  top: auto;
-  left: auto;
 }
 
 .main-legal-links {
