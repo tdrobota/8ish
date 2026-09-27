@@ -95,9 +95,10 @@ const TIMEOUT_MS = 30000;
 // relying on draw.js's dynamic aspect-ratio resize to paper over a
 // mismatch (that logic stays anyway, as a real safety net -- see its own
 // comment -- for any model response that doesn't come back exactly this
-// shape). 1024 is comfortably inside the model's documented 256-1920
-// range for both dimensions and well under its 4MP cap.
-const OUTPUT_SIZE = "1024";
+// shape). Lowered from 1024 to 768 (2026-09-27) to cut generation time
+// and response size -- still square, so the letterboxing fix above is
+// unaffected, and still inside the model's documented 256-1920 range.
+const OUTPUT_SIZE = "768";
 
 // Actual bytes read, never a trusted Content-Length (Content-Length can be
 // absent or wrong) — enforced by readCappedBody() below, which never
@@ -951,9 +952,14 @@ async function runModelAndSettle({ env, ctx, governorStub, reservationId, pngByt
   }
 
   // 11. Race the actual model call against the fixed timeout.
+  // The model's own wall time is logged on success so a slow result can be
+  // told apart from a slow upload/download/human check. A bare number only
+  // -- no identifier of any kind.
   let result;
+  const modelStartMs = Date.now();
   try {
     result = await raceWithTimeout(runPromise, TIMEOUT_MS);
+    console.log(`transform_model_ms ${Date.now() - modelStartMs}`);
   } catch (error) {
     ctx.waitUntil(governorStub.release(reservationId, { providerFailed: true }));
     writeEvent(env, ctx, "image_failed", "");
